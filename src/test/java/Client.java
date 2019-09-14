@@ -8,13 +8,13 @@ public class Client {
 
     public static void main(String[] args) throws InterruptedException {
         RpcFactory.clientInit();
-        RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(MyResponseMessage.class);
+        RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate();
         Sender connect = clientTemplate.connect("127.0.0.1", 1999);
         MyRequestMessage myRequestMessage = new MyRequestMessage();
         myRequestMessage.setTime(System.currentTimeMillis());
         connect.send(myRequestMessage, new Callback<MyResponseMessage>() {
             @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
+            public void operationComplete(ChannelFuture future) {
                 if (future.cause() != null) {
                     future.cause().printStackTrace();
                 }

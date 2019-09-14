@@ -1,8 +1,6 @@
 package club.koumakan.rpc.server;
 
-import club.koumakan.rpc.message.entity.RequestMessage;
-
-public interface Listener<c extends RequestMessage> {
+public interface Listener<c> {
 
     void read(c requestMessage, Channel channel);
 }

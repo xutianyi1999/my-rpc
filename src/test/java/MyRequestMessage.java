@@ -1,8 +1,6 @@
-import club.koumakan.rpc.message.entity.RequestMessage;
-
 import java.io.Serializable;
 
-public class MyRequestMessage extends RequestMessage implements Serializable {
+public class MyRequestMessage implements Serializable {
 
     private long time;
 

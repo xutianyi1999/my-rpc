@@ -1,7 +1,7 @@
 package club.koumakan.rpc.channel;
 
 import club.koumakan.rpc.client.Callback;
-import club.koumakan.rpc.message.entity.RequestMessage;
+import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
 
 import static club.koumakan.rpc.RpcContext.callbackMap;
@@ -15,9 +15,10 @@ public class Sender {
         this.channel = channel;
     }
 
-    public void send(RequestMessage requestMessage, Callback callback) {
-        channel.writeAndFlush(requestMessage).addListener(callback);
-        callbackMap.put(requestMessage.getCallId(), callback);
+    public void send(Object requestMessage, Callback callback) {
+        Call call = new Call(requestMessage);
+        channel.writeAndFlush(call).addListener(callback);
+        callbackMap.put(call.CALL_ID, callback);
     }
 
     public void close() throws InterruptedException {

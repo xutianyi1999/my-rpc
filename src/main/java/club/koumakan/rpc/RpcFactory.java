@@ -3,8 +3,7 @@ package club.koumakan.rpc;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
-import club.koumakan.rpc.message.entity.RequestMessage;
-import club.koumakan.rpc.message.entity.ResponseMessage;
+import club.koumakan.rpc.message.entity.Call;
 import club.koumakan.rpc.template.RpcClientTemplate;
 import club.koumakan.rpc.template.RpcServerTemplate;
 import io.netty.bootstrap.Bootstrap;
@@ -34,7 +33,8 @@ import static club.koumakan.rpc.RpcContext.callbackMap;
 
 public class RpcFactory {
 
-    private final static boolean isLinux = System.getProperty("os.name").contains("Linux");
+    private final static boolean IS_LINUX = System.getProperty("os.name").contains("Linux");
+    private final static Class CLAZZ = Call.class;
 
     private static boolean init = false;
 
@@ -48,7 +48,7 @@ public class RpcFactory {
             return;
         }
 
-        if (isLinux) {
+        if (IS_LINUX) {
             bossGroup = new EpollEventLoopGroup();
             workerGroup = new EpollEventLoopGroup();
             serverChannelClass = EpollServerSocketChannel.class;
@@ -79,7 +79,7 @@ public class RpcFactory {
             return;
         }
 
-        if (isLinux) {
+        if (IS_LINUX) {
             workerGroup = new EpollEventLoopGroup();
             channelClass = EpollSocketChannel.class;
         } else {
@@ -103,24 +103,21 @@ public class RpcFactory {
         init = true;
     }
 
-    public static RpcClientTemplate createClientTemplate(Class<? extends ResponseMessage> responseMessageClass,
-                                                         ClassResolverType classResolverType) {
+    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) {
 
-        return new RpcClientTemplate(createBootstrap(getClassResolver(responseMessageClass, classResolverType)));
+        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType)));
     }
 
-    public static RpcClientTemplate createClientTemplate(Class<? extends ResponseMessage> responseMessageClass) {
-        return createClientTemplate(responseMessageClass, weakCachingResolver);
+    public static RpcClientTemplate createClientTemplate() {
+        return createClientTemplate(weakCachingResolver);
     }
 
-
-    public static RpcServerTemplate createServerTemplate(Class<? extends RequestMessage> requestMessageClass,
-                                                         ClassResolverType classResolverType) {
-        return new RpcServerTemplate(createServerBootstrap(getClassResolver(requestMessageClass, classResolverType)));
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType) {
+        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType)));
     }
 
-    public static RpcServerTemplate createServerTemplate(Class<? extends RequestMessage> requestMessageClass) {
-        return createServerTemplate(requestMessageClass, weakCachingResolver);
+    public static RpcServerTemplate createServerTemplate() {
+        return createServerTemplate(weakCachingResolver);
     }
 
     private static Bootstrap createBootstrap(final ClassResolver classResolver) {
@@ -160,17 +157,17 @@ public class RpcFactory {
         return serverBootstrap;
     }
 
-    private static ClassResolver getClassResolver(Class clazz, ClassResolverType classResolverType) {
+    private static ClassResolver getClassResolver(ClassResolverType classResolverType) {
         if (classResolverType == cacheDisabled) {
-            return ClassResolvers.cacheDisabled(clazz.getClassLoader());
+            return ClassResolvers.cacheDisabled(CLAZZ.getClassLoader());
         } else if (classResolverType == softCachingConcurrentResolver) {
-            return ClassResolvers.softCachingConcurrentResolver(clazz.getClassLoader());
+            return ClassResolvers.softCachingConcurrentResolver(CLAZZ.getClassLoader());
         } else if (classResolverType == softCachingResolver) {
-            return ClassResolvers.softCachingResolver(clazz.getClassLoader());
+            return ClassResolvers.softCachingResolver(CLAZZ.getClassLoader());
         } else if (classResolverType == weakCachingConcurrentResolver) {
-            return ClassResolvers.weakCachingConcurrentResolver(clazz.getClassLoader());
+            return ClassResolvers.weakCachingConcurrentResolver(CLAZZ.getClassLoader());
         } else if (classResolverType == weakCachingResolver) {
-            return ClassResolvers.weakCachingResolver(clazz.getClassLoader());
+            return ClassResolvers.weakCachingResolver(CLAZZ.getClassLoader());
         } else {
             return null;
         }
