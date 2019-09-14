@@ -4,7 +4,7 @@ import club.koumakan.rpc.message.entity.ResponseMessage;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 
-public interface Callback extends GenericFutureListener<ChannelFuture> {
+public interface Callback<c extends ResponseMessage> extends GenericFutureListener<ChannelFuture> {
 
-    void response(ResponseMessage responseMessage);
+    void response(c responseMessage);
 }
