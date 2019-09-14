@@ -1,6 +1,8 @@
 package club.koumakan.rpc.message.entity;
 
-public abstract class ResponseMessage {
+import java.io.Serializable;
+
+public abstract class ResponseMessage implements Serializable {
 
     private String callId;
 

@@ -1,8 +1,9 @@
 package club.koumakan.rpc.message.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public abstract class RequestMessage {
+public abstract class RequestMessage implements Serializable {
 
     private String callId;
 

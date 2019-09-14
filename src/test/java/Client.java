@@ -12,19 +12,19 @@ public class Client {
         Sender connect = clientTemplate.connect("127.0.0.1", 1999);
         MyRequestMessage myRequestMessage = new MyRequestMessage();
         myRequestMessage.setTime(System.currentTimeMillis());
-        for (int i = 0; i < 1000; i++) {
-            connect.send(myRequestMessage, new Callback<MyResponseMessage>() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    if (future.cause() != null) {
-                        future.cause().printStackTrace();
-                    }
+        connect.send(myRequestMessage, new Callback<MyResponseMessage>() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.cause() != null) {
+                    future.cause().printStackTrace();
                 }
+            }
 
-                @Override
-                public void response(MyResponseMessage myResponseMessage) {
-                }
-            });
-        }
+            @Override
+            public void response(MyResponseMessage myResponseMessage) {
+                String content = myResponseMessage.getContent();
+                System.out.println(content);
+            }
+        });
     }
 }

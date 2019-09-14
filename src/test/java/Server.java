@@ -2,6 +2,8 @@ import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.channel.Receiver;
 import club.koumakan.rpc.server.Listener;
 import club.koumakan.rpc.template.RpcServerTemplate;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 
 public class Server {
 
@@ -12,6 +14,17 @@ public class Server {
         receiver.receive((Listener<MyRequestMessage>) (myRequestMessage, channel) -> {
             long l = System.currentTimeMillis();
             System.out.println(l - myRequestMessage.getTime());
+            MyResponseMessage myResponseMessage = new MyResponseMessage(myRequestMessage.getCallId());
+            myResponseMessage.setContent("test");
+            channel.response(myResponseMessage, new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    Throwable cause = future.cause();
+                    if (cause != null) {
+                        cause.printStackTrace();
+                    }
+                }
+            });
         });
     }
 }
