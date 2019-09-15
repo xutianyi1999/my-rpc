@@ -1,9 +1,8 @@
 package club.koumakan.rpc.server;
 
+import club.koumakan.rpc.Future;
 import club.koumakan.rpc.message.entity.Call;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.GenericFutureListener;
 
 public class Channel {
 
@@ -16,8 +15,8 @@ public class Channel {
         this.call = call;
     }
 
-    public void response(Object responseMessage, GenericFutureListener<ChannelFuture> genericFutureListener) {
+    public void response(Object responseMessage, Future future) {
         call.setData(responseMessage);
-        ctx.writeAndFlush(call).addListener(genericFutureListener);
+        ctx.writeAndFlush(call).addListener(future);
     }
 }

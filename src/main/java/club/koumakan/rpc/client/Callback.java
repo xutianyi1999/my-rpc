@@ -1,9 +1,8 @@
 package club.koumakan.rpc.client;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.GenericFutureListener;
+import club.koumakan.rpc.Future;
 
-public interface Callback<C> extends GenericFutureListener<ChannelFuture> {
+public abstract class Callback<C> extends Future {
 
-    void response(C responseMessage);
+    public abstract void response(C responseMessage);
 }

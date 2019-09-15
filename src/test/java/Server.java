@@ -1,8 +1,8 @@
+import club.koumakan.rpc.Future;
 import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.channel.Receiver;
 import club.koumakan.rpc.server.Listener;
 import club.koumakan.rpc.template.RpcServerTemplate;
-import io.netty.channel.ChannelFutureListener;
 
 public class Server {
 
@@ -17,11 +17,12 @@ public class Server {
 
             MyResponseMessage myResponseMessage = new MyResponseMessage();
             myResponseMessage.setContent("test");
-            channel.response(myResponseMessage, (ChannelFutureListener) future -> {
-                Throwable cause = future.cause();
-
-                if (cause != null) {
-                    cause.printStackTrace();
+            channel.response(myResponseMessage, new Future() {
+                @Override
+                public void operationComplete(boolean isSuccess, Throwable throwable) {
+                    if (throwable != null) {
+                        throwable.printStackTrace();
+                    }
                 }
             });
         });

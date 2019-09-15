@@ -104,7 +104,6 @@ public class RpcFactory {
     }
 
     public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) {
-
         return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType)));
     }
 
