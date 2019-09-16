@@ -1,6 +1,7 @@
 package club.koumakan.rpc;
 
 import club.koumakan.rpc.client.Callback;
+import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
 import club.koumakan.rpc.message.entity.Call;
@@ -44,9 +45,9 @@ public class RpcFactory {
     private static Class<? extends ServerSocketChannel> serverChannelClass;
     private static Class<? extends Channel> channelClass;
 
-    public static void serverInit() {
+    public static void serverInit() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
-            return;
+            throw new RpcFactoryInitException("Already initialized");
         }
 
         if (IS_LINUX) {
@@ -63,10 +64,10 @@ public class RpcFactory {
 
     public static void serverInit(EventLoopGroup bossGroup,
                                   EventLoopGroup workerGroup,
-                                  Class<? extends ServerSocketChannel> serverChannelClass) {
+                                  Class<? extends ServerSocketChannel> serverChannelClass) throws RpcFactoryInitException {
 
         if (SERVER_INIT || CLIENT_INIT) {
-            return;
+            throw new RpcFactoryInitException("Already initialized");
         }
 
         RpcFactory.bossGroup = bossGroup;
@@ -75,9 +76,9 @@ public class RpcFactory {
         SERVER_INIT = true;
     }
 
-    public static void clientInit() {
+    public static void clientInit() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
-            return;
+            throw new RpcFactoryInitException("Already initialized");
         }
 
         if (IS_LINUX) {
@@ -92,9 +93,9 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static void clientInit(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) {
+    public static void clientInit(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
-            return;
+            throw new RpcFactoryInitException("Already initialized");
         }
 
         RpcFactory.workerGroup = workerGroup;
@@ -104,25 +105,25 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) {
+    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) throws RpcFactoryInitException {
         return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType)));
     }
 
-    public static RpcClientTemplate createClientTemplate() {
+    public static RpcClientTemplate createClientTemplate() throws RpcFactoryInitException {
         return createClientTemplate(weakCachingResolver);
     }
 
-    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType) {
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType) throws RpcFactoryInitException {
         return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType)));
     }
 
-    public static RpcServerTemplate createServerTemplate() {
+    public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
         return createServerTemplate(weakCachingResolver);
     }
 
-    private static Bootstrap createBootstrap(final ClassResolver classResolver) {
+    private static Bootstrap createBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
         if (!CLIENT_INIT) {
-            return null;
+            throw new RpcFactoryInitException("Client is not initialized");
         }
 
         Bootstrap bootstrap = new Bootstrap();
@@ -143,9 +144,9 @@ public class RpcFactory {
         return bootstrap;
     }
 
-    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) {
+    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
-            return null;
+            throw new RpcFactoryInitException("Server is not initialized");
         }
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
