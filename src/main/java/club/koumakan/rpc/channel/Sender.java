@@ -1,5 +1,6 @@
 package club.koumakan.rpc.channel;
 
+import club.koumakan.rpc.Future;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
@@ -21,7 +22,7 @@ public class Sender {
         callbackMap.put(call.CALL_ID, callback);
     }
 
-    public void close() throws InterruptedException {
-        channel.close().sync();
+    public void close(Future future) {
+        channel.close().addListener(future);
     }
 }

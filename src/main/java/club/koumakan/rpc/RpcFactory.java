@@ -45,7 +45,7 @@ public class RpcFactory {
     private static Class<? extends ServerSocketChannel> serverChannelClass;
     private static Class<? extends Channel> channelClass;
 
-    public static void serverInit() throws RpcFactoryInitException {
+    public static void initServer() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
             throw new RpcFactoryInitException("Already initialized");
         }
@@ -62,7 +62,7 @@ public class RpcFactory {
         SERVER_INIT = true;
     }
 
-    public static void serverInit(EventLoopGroup bossGroup,
+    public static void initServer(EventLoopGroup bossGroup,
                                   EventLoopGroup workerGroup,
                                   Class<? extends ServerSocketChannel> serverChannelClass) throws RpcFactoryInitException {
 
@@ -76,7 +76,7 @@ public class RpcFactory {
         SERVER_INIT = true;
     }
 
-    public static void clientInit() throws RpcFactoryInitException {
+    public static void initClient() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
             throw new RpcFactoryInitException("Already initialized");
         }
@@ -93,7 +93,7 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static void clientInit(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) throws RpcFactoryInitException {
+    public static void initClient(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
             throw new RpcFactoryInitException("Already initialized");
         }

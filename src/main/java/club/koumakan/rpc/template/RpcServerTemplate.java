@@ -1,6 +1,6 @@
 package club.koumakan.rpc.template;
 
-import club.koumakan.rpc.channel.Receiver;
+import club.koumakan.rpc.server.BindFuture;
 import io.netty.bootstrap.ServerBootstrap;
 
 public class RpcServerTemplate {
@@ -11,7 +11,7 @@ public class RpcServerTemplate {
         this.serverBootstrap = serverBootstrap;
     }
 
-    public Receiver bind(int port) throws InterruptedException {
-        return new Receiver(serverBootstrap.bind(port).sync().channel());
+    public void bind(int port, BindFuture bindFuture) {
+        serverBootstrap.bind(port).addListener(bindFuture);
     }
 }

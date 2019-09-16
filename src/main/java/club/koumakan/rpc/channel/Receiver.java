@@ -1,5 +1,6 @@
 package club.koumakan.rpc.channel;
 
+import club.koumakan.rpc.Future;
 import club.koumakan.rpc.server.Listener;
 import io.netty.channel.Channel;
 
@@ -21,8 +22,8 @@ public class Receiver {
         listenerMap.put(inetSocketAddress.getPort(), listener);
     }
 
-    public void close() throws InterruptedException {
+    public void close(Future future) {
         listenerMap.remove(inetSocketAddress.getPort());
-        channel.close().sync();
+        channel.close().addListener(future);
     }
 }

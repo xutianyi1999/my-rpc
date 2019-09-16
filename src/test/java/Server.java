@@ -1,31 +1,36 @@
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.channel.Receiver;
+import club.koumakan.rpc.server.BindFuture;
 import club.koumakan.rpc.server.Listener;
 import club.koumakan.rpc.template.RpcServerTemplate;
 
 public class Server {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         try {
-            RpcFactory.serverInit();
+            RpcFactory.initServer();
             RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate();
-            Receiver receiver = serverTemplate.bind(1999);
-            receiver.receive((Listener<MyRequestMessage>) (requestMessage, channel) -> {
-                long time1 = requestMessage.getTime();
-                long time2 = System.currentTimeMillis();
-                System.out.println(time2 - time1);
+            serverTemplate.bind(1999, new BindFuture() {
 
-                MyResponseMessage myResponseMessage = new MyResponseMessage();
-                myResponseMessage.setContent("test");
-                channel.response(myResponseMessage, new Future() {
-                    @Override
-                    public void operationComplete(boolean isSuccess, Throwable throwable) {
-                        if (throwable != null) {
-                            throwable.printStackTrace();
-                        }
+                @Override
+                public void operationComplete(boolean isSuccess, Throwable throwable, Receiver receiver) {
+                    if (isSuccess && throwable == null) {
+                        receiver.receive((Listener<String>) (str, channel) -> {
+                            System.out.println(str);
+                            channel.response("server", new Future() {
+                                @Override
+                                public void operationComplete(boolean isSuccess, Throwable throwable) {
+                                    if (throwable != null) {
+                                        throwable.printStackTrace();
+                                    }
+                                }
+                            });
+                        });
+                    } else {
+                        throwable.printStackTrace();
                     }
-                });
+                }
             });
         } catch (Exception e) {
             e.printStackTrace();
