@@ -14,8 +14,7 @@ public class Client {
                 @Override
                 public void operationComplete(boolean isSuccess, Throwable throwable, Sender sender) {
                     if (isSuccess && throwable == null) {
-                        String str = "client";
-                        sender.send(str, new Callback<String>() {
+                        sender.send(System.currentTimeMillis(), new Callback<Long>() {
                             @Override
                             public void operationComplete(boolean isSuccess, Throwable throwable) {
                                 if (throwable != null) {
@@ -24,8 +23,13 @@ public class Client {
                             }
 
                             @Override
-                            public void response(String responseMessage) {
-                                System.out.println(responseMessage);
+                            public void response(Long responseMessage) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                System.out.println(System.currentTimeMillis() - responseMessage);
                             }
                         });
                     } else {

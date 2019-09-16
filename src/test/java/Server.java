@@ -16,9 +16,8 @@ public class Server {
                 @Override
                 public void operationComplete(boolean isSuccess, Throwable throwable, Receiver receiver) {
                     if (isSuccess && throwable == null) {
-                        receiver.receive((Listener<String>) (str, channel) -> {
-                            System.out.println(str);
-                            channel.response("server", new Future() {
+                        receiver.receive((Listener<Long>) (time, channel) -> {
+                            channel.response(time, new Future() {
                                 @Override
                                 public void operationComplete(boolean isSuccess, Throwable throwable) {
                                     if (throwable != null) {

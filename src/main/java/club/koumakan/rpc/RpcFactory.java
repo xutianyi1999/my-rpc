@@ -25,6 +25,7 @@ import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.Map;
 import java.util.Set;
@@ -138,7 +139,7 @@ public class RpcFactory {
                                         new ObjectDecoder(classResolver),
                                         new ObjectEncoder()
                                 ))
-                                .addLast(new RpcClientHandler());
+                                .addLast(new DefaultEventExecutorGroup(10), new RpcClientHandler());
                     }
                 });
         return bootstrap;
