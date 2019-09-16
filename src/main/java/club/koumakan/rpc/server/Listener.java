@@ -1,6 +1,6 @@
 package club.koumakan.rpc.server;
 
-public interface Listener<C> {
+public interface Listener<T> {
 
-    void read(C requestMessage, Channel channel);
+    void read(T requestMessage, Channel channel);
 }

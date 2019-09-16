@@ -1,8 +1,6 @@
 package club.koumakan.rpc.client;
 
-import club.koumakan.rpc.Future;
+public interface Callback<T> {
 
-public abstract class Callback<C> extends Future {
-
-    public abstract void response(C responseMessage);
+    void response(T object);
 }
