@@ -36,7 +36,8 @@ public class RpcFactory {
     private final static boolean IS_LINUX = System.getProperty("os.name").contains("Linux");
     private final static Class CLAZZ = Call.class;
 
-    private static boolean init = false;
+    private static boolean SERVER_INIT = false;
+    private static boolean CLIENT_INIT = false;
 
     private static EventLoopGroup bossGroup;
     private static EventLoopGroup workerGroup;
@@ -44,7 +45,7 @@ public class RpcFactory {
     private static Class<? extends Channel> channelClass;
 
     public static void serverInit() {
-        if (init) {
+        if (SERVER_INIT || CLIENT_INIT) {
             return;
         }
 
@@ -57,25 +58,25 @@ public class RpcFactory {
             workerGroup = new NioEventLoopGroup();
             serverChannelClass = NioServerSocketChannel.class;
         }
-        init = true;
+        SERVER_INIT = true;
     }
 
     public static void serverInit(EventLoopGroup bossGroup,
                                   EventLoopGroup workerGroup,
                                   Class<? extends ServerSocketChannel> serverChannelClass) {
 
-        if (init) {
+        if (SERVER_INIT || CLIENT_INIT) {
             return;
         }
 
         RpcFactory.bossGroup = bossGroup;
         RpcFactory.workerGroup = workerGroup;
         RpcFactory.serverChannelClass = serverChannelClass;
-        init = true;
+        SERVER_INIT = true;
     }
 
     public static void clientInit() {
-        if (init) {
+        if (SERVER_INIT || CLIENT_INIT) {
             return;
         }
 
@@ -88,11 +89,11 @@ public class RpcFactory {
         }
 
         callbackClear();
-        init = true;
+        CLIENT_INIT = true;
     }
 
     public static void clientInit(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) {
-        if (init) {
+        if (SERVER_INIT || CLIENT_INIT) {
             return;
         }
 
@@ -100,7 +101,7 @@ public class RpcFactory {
         RpcFactory.channelClass = channelClass;
 
         callbackClear();
-        init = true;
+        CLIENT_INIT = true;
     }
 
     public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) {
@@ -120,6 +121,10 @@ public class RpcFactory {
     }
 
     private static Bootstrap createBootstrap(final ClassResolver classResolver) {
+        if (!CLIENT_INIT) {
+            return null;
+        }
+
         Bootstrap bootstrap = new Bootstrap();
 
         bootstrap.group(workerGroup)
@@ -139,6 +144,10 @@ public class RpcFactory {
     }
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) {
+        if (!SERVER_INIT) {
+            return null;
+        }
+
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 
         serverBootstrap.group(bossGroup, workerGroup)
