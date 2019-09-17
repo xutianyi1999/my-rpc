@@ -8,19 +8,18 @@ public class Server {
         try {
             RpcFactory.initServer();
             RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate();
-            serverTemplate.bind(1000, (throwable, receiver) -> {
+
+            serverTemplate.bind(10000, (throwable, receiver) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    receiver.receive((Listener<Long>) (time, channel) -> {
-                        channel.response(time, (throwable2, object) -> {
-                            if (throwable2 == null) {
-                                System.out.println("SUCCESS");
-                            } else {
-                                throwable2.printStackTrace();
-                            }
-                        });
-                    });
+                    receiver.receive((Listener<Long>) (time, channel) -> channel.response(time, (throwable2, object) -> {
+                        if (throwable2 == null) {
+                            System.out.println("SUCCESS");
+                        } else {
+                            throwable2.printStackTrace();
+                        }
+                    }));
                 }
             });
         } catch (Exception e) {

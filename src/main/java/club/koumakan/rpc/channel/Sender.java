@@ -2,6 +2,7 @@ package club.koumakan.rpc.channel;
 
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.client.Callback;
+import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -9,6 +10,7 @@ import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 
 import static club.koumakan.rpc.RpcContext.callbackMap;
+import static club.koumakan.rpc.RpcContext.inactiveMap;
 
 
 public class Sender {
@@ -31,6 +33,8 @@ public class Sender {
     public void close(Future future) {
         channel.close().addListener((ChannelFutureListener) channelFuture ->
                 future.execute(channelFuture.cause(), null));
+
+        inactiveMap.remove(channel);
     }
 
     public InetSocketAddress getRemoteAddress() {
@@ -43,5 +47,9 @@ public class Sender {
 
     public boolean isWriteable() {
         return channel.isWritable();
+    }
+
+    public void addListenerInactive(Inactive inactive) {
+        inactiveMap.put(channel, inactive);
     }
 }

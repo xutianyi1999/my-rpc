@@ -8,10 +8,13 @@ public class Client {
         try {
             RpcFactory.initClient();
             RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate();
-            clientTemplate.connect("127.0.0.1", 1000, (throwable, sender) -> {
+
+            clientTemplate.connect("127.0.0.1", 10000, (throwable, sender) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
+                    sender.addListenerInactive(remoteAddress -> System.out.println(remoteAddress + " disconnect"));
+
                     sender.send(System.currentTimeMillis(), (throwable2, object) -> {
                         if (throwable2 != null) {
                             throwable2.printStackTrace();
