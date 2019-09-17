@@ -22,4 +22,9 @@ public class Channel {
         ctx.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture ->
                 future.execute(channelFuture.cause(), null));
     }
+
+    public void close(Future future) {
+        ctx.close().addListener((ChannelFutureListener) channelFuture ->
+                future.execute(channelFuture.cause(), null));
+    }
 }
