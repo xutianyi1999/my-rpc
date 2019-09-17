@@ -9,10 +9,7 @@ import club.koumakan.rpc.template.RpcClientTemplate;
 import club.koumakan.rpc.template.RpcServerTemplate;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.CombinedChannelDuplexHandler;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -152,6 +149,7 @@ public class RpcFactory {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 
         serverBootstrap.group(bossGroup, workerGroup)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(serverChannelClass)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel ch) {
