@@ -8,6 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import static club.koumakan.rpc.RpcContext.listenerMap;
 
@@ -17,10 +18,14 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Call> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Call msg) {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().localAddress();
-        Listener listener = listenerMap.get(inetSocketAddress.getPort());
+        Map<String, Listener> functionMap = listenerMap.get(inetSocketAddress.getPort());
 
-        if (listener != null) {
-            listener.read(msg.getData(), new Channel(ctx, msg));
+        if (functionMap != null) {
+            Listener listener = functionMap.get(msg.getFunctionCode());
+
+            if (listener != null) {
+                listener.read(msg.getData(), new Channel(ctx, msg));
+            }
         }
     }
 }

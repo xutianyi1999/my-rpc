@@ -6,6 +6,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static club.koumakan.rpc.RpcContext.listenerMap;
 
@@ -19,8 +21,16 @@ public class Receiver {
         this.inetSocketAddress = (InetSocketAddress) channel.localAddress();
     }
 
-    public void receive(Listener listener) {
-        listenerMap.put(inetSocketAddress.getPort(), listener);
+    public void receive(String functionCode, Listener listener) {
+        Map<String, Listener> functionMap = listenerMap.get(inetSocketAddress.getPort());
+
+        if (functionMap == null) {
+            functionMap = new ConcurrentHashMap<>();
+            functionMap.put(functionCode, listener);
+            listenerMap.put(inetSocketAddress.getPort(), functionMap);
+        } else {
+            functionMap.put(functionCode, listener);
+        }
     }
 
     public void close(Future future) {

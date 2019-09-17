@@ -15,11 +15,16 @@ public class Client {
                 } else {
                     sender.addListenerInactive(remoteAddress -> System.out.println(remoteAddress + " disconnect"));
 
-                    sender.send(System.currentTimeMillis(), (throwable2, object) -> {
-                        if (throwable2 != null) {
-                            throwable2.printStackTrace();
-                        }
-                    }, (Callback<Long>) time -> System.out.println(System.currentTimeMillis() - time));
+                    MyRequestMessage myRequestMessage = new MyRequestMessage();
+                    myRequestMessage.setTime(System.currentTimeMillis());
+
+                    sender.send("test", myRequestMessage, (throwable2, object) -> {
+                        if (throwable2 != null) throwable2.printStackTrace();
+                    }, (Callback<String>) System.out::println);
+
+                    sender.send("test2", "测试2", (throwable3, object) -> {
+                        if (throwable3 != null) throwable3.printStackTrace();
+                    }, (Callback<String>) System.out::println);
                 }
             });
         } catch (Exception e) {

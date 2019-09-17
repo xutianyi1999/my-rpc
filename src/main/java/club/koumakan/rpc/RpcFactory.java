@@ -126,6 +126,7 @@ public class RpcFactory {
         Bootstrap bootstrap = new Bootstrap();
 
         bootstrap.group(workerGroup)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(channelClass)
                 .handler(new ChannelInitializer<SocketChannel>() {
 
@@ -149,7 +150,6 @@ public class RpcFactory {
         ServerBootstrap serverBootstrap = new ServerBootstrap();
 
         serverBootstrap.group(bossGroup, workerGroup)
-                .option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(serverChannelClass)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     protected void initChannel(SocketChannel ch) {

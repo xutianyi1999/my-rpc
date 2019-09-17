@@ -9,8 +9,15 @@ public class Call implements Serializable {
 
     private Object data;
 
-    public Call(Object data) {
+    private String functionCode;
+
+    public Call(Object data, String functionCode) {
         this.data = data;
+        this.functionCode = functionCode;
+    }
+
+    public String getFunctionCode() {
+        return functionCode;
     }
 
     public Object getData() {

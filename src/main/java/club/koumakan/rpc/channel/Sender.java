@@ -21,8 +21,8 @@ public class Sender {
         this.channel = channel;
     }
 
-    public void send(Object requestMessage, Future future, Callback callback) {
-        Call call = new Call(requestMessage);
+    public void send(String functionCode, Object requestMessage, Future future, Callback callback) {
+        Call call = new Call(requestMessage, functionCode);
 
         channel.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture ->
                 future.execute(channelFuture.cause(), null));

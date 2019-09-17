@@ -17,5 +17,5 @@ public class RpcContext {
     public static final Map<Channel, Inactive> inactiveMap = new ConcurrentHashMap<>();
 
     //server 接收监听
-    public static final Map<Integer, Listener> listenerMap = new ConcurrentHashMap<>();
+    public static final Map<Integer, Map<String, Listener>> listenerMap = new ConcurrentHashMap<>();
 }
