@@ -16,10 +16,10 @@ public class Channel {
         this.call = call;
     }
 
-    public void response(Object responseMessage, Future<?> future) {
+    public void response(Object responseMessage, Future future) {
         call.setData(responseMessage);
-        ctx.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture -> {
-            future.execute(channelFuture.cause(), null);
-        });
+
+        ctx.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture ->
+                future.execute(channelFuture.cause(), null));
     }
 }

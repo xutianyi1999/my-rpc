@@ -6,7 +6,7 @@ public class RpcFactoryInitException extends Exception {
         super();
     }
 
-    public RpcFactoryInitException(String s) {
-        super(s);
+    public RpcFactoryInitException(String str) {
+        super(str);
     }
 }

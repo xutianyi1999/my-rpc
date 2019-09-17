@@ -2,13 +2,13 @@ import java.io.Serializable;
 
 public class MyResponseMessage implements Serializable {
 
-    private String content;
+    private long content;
 
-    public String getContent() {
+    public long getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(long content) {
         this.content = content;
     }
 }

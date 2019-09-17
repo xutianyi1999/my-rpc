@@ -23,8 +23,9 @@ public class Receiver {
         listenerMap.put(inetSocketAddress.getPort(), listener);
     }
 
-    public void close(Future<?> future) {
+    public void close(Future future) {
         listenerMap.remove(inetSocketAddress.getPort());
+
         channel.close().addListener((ChannelFutureListener) channelFuture ->
                 future.execute(channelFuture.cause(), null));
     }
