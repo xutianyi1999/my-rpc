@@ -122,8 +122,8 @@ public class RpcFactory {
     }
 
     private static Bootstrap createBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
-        if (!CLIENT_INIT) {
-            throw new RpcFactoryInitException("Client is not initialized");
+        if (!CLIENT_INIT && !SERVER_INIT) {
+            throw new RpcFactoryInitException("Not initialized");
         }
 
         Bootstrap bootstrap = new Bootstrap();
@@ -146,7 +146,7 @@ public class RpcFactory {
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
-            throw new RpcFactoryInitException("Server is not initialized");
+            throw new RpcFactoryInitException("Not initialized");
         }
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
