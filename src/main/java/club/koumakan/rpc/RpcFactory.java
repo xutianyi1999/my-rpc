@@ -86,7 +86,6 @@ public class RpcFactory {
             channelClass = NioSocketChannel.class;
         }
 
-        callbackClear();
         CLIENT_INIT = true;
     }
 
@@ -98,7 +97,6 @@ public class RpcFactory {
         RpcFactory.workerGroup = workerGroup;
         RpcFactory.channelClass = channelClass;
 
-        callbackClear();
         CLIENT_INIT = true;
     }
 
@@ -118,29 +116,7 @@ public class RpcFactory {
         return createServerTemplate(weakCachingResolver);
     }
 
-    private static Bootstrap createBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
-        if (!CLIENT_INIT && !SERVER_INIT) {
-            throw new RpcFactoryInitException("Not initialized");
-        }
-
-        Bootstrap bootstrap = new Bootstrap();
-
-        bootstrap.group(workerGroup)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .channel(channelClass)
-                .handler(new ChannelInitializer<SocketChannel>() {
-
-                    protected void initChannel(SocketChannel ch) {
-                        ch.pipeline()
-                                .addLast(new CombinedChannelDuplexHandler<>(
-                                        new ObjectDecoder(classResolver),
-                                        new ObjectEncoder()
-                                ))
-                                .addLast(new RpcClientHandler());
-                    }
-                });
-        return bootstrap;
-    }
+    private static boolean isClearStart = false;
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
@@ -180,7 +156,39 @@ public class RpcFactory {
         }
     }
 
+    private static Bootstrap createBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
+        if (!CLIENT_INIT && !SERVER_INIT) {
+            throw new RpcFactoryInitException("Not initialized");
+        }
+
+        Bootstrap bootstrap = new Bootstrap();
+
+        bootstrap.group(workerGroup)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .channel(channelClass)
+                .handler(new ChannelInitializer<SocketChannel>() {
+
+                    protected void initChannel(SocketChannel ch) {
+                        ch.pipeline()
+                                .addLast(new CombinedChannelDuplexHandler<>(
+                                        new ObjectDecoder(classResolver),
+                                        new ObjectEncoder()
+                                ))
+                                .addLast(new RpcClientHandler());
+                    }
+                });
+
+        callbackClear();
+        return bootstrap;
+    }
+
     private static void callbackClear() {
+        if (isClearStart) {
+            return;
+        } else {
+            isClearStart = true;
+        }
+
         new Thread(() -> {
             while (true) {
                 if (callbackMap.size() > 0) {
