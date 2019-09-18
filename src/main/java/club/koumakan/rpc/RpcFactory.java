@@ -37,6 +37,8 @@ public class RpcFactory {
     private static boolean SERVER_INIT = false;
     private static boolean CLIENT_INIT = false;
 
+    private static boolean isClearStart = false;
+
     private static EventLoopGroup bossGroup;
     private static EventLoopGroup workerGroup;
     private static Class<? extends ServerSocketChannel> serverChannelClass;
@@ -115,8 +117,6 @@ public class RpcFactory {
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
         return createServerTemplate(weakCachingResolver);
     }
-
-    private static boolean isClearStart = false;
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
