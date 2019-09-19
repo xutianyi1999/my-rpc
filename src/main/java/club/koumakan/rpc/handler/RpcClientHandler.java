@@ -2,6 +2,7 @@ package club.koumakan.rpc.handler;
 
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.Inactive;
+import club.koumakan.rpc.client.ReconnectHandler;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,7 +32,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
 
         if (inactive != null) {
             inactiveMap.remove(ctx.channel());
-            inactive.execute((InetSocketAddress) ctx.channel().remoteAddress());
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+            inactive.execute(inetSocketAddress, new ReconnectHandler(inetSocketAddress));
         }
     }
 }

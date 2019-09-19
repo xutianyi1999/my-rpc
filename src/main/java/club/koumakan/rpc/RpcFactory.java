@@ -1,6 +1,8 @@
 package club.koumakan.rpc;
 
 import club.koumakan.rpc.client.Callback;
+import club.koumakan.rpc.client.ReconnectListener;
+import club.koumakan.rpc.client.ReconnectListenerEntity;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
@@ -23,11 +25,15 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.RpcContext.callbackMap;
+import static club.koumakan.rpc.RpcContext.reconnectListenerMap;
 
 public class RpcFactory {
 
@@ -37,7 +43,7 @@ public class RpcFactory {
     private static boolean SERVER_INIT = false;
     private static boolean CLIENT_INIT = false;
 
-    private static boolean isClearStart = false;
+    private static boolean isClientTaskStart = false;
 
     private static EventLoopGroup bossGroup;
     private static EventLoopGroup workerGroup;
@@ -167,7 +173,7 @@ public class RpcFactory {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(channelClass)
                 .handler(new ChannelInitializer<SocketChannel>() {
-
+                    @Override
                     protected void initChannel(SocketChannel ch) {
                         ch.pipeline()
                                 .addLast(new CombinedChannelDuplexHandler<>(
@@ -178,37 +184,58 @@ public class RpcFactory {
                     }
                 });
 
-        callbackClear();
+        clientTask();
         return bootstrap;
     }
 
-    private static void callbackClear() {
-        if (isClearStart) {
+    private static void clientTask() {
+        if (isClientTaskStart) {
             return;
         } else {
-            isClearStart = true;
+            isClientTaskStart = true;
         }
 
-        new Thread(() -> {
-            while (true) {
+        Timer timer = new Timer();
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
                 if (callbackMap.size() > 0) {
                     Set<Map.Entry<String, Callback>> entries = callbackMap.entrySet();
+                    long time = System.currentTimeMillis();
 
                     for (Map.Entry<String, Callback> entry : entries) {
                         long sendTime = Long.parseLong(entry.getKey().split(":")[0]);
 
-                        if (System.currentTimeMillis() - sendTime >= 60000) {
+                        if (time - sendTime >= 60000) {
                             callbackMap.remove(entry.getKey());
                         }
                     }
                 }
+            }
+        }, 0, 10000);
 
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (reconnectListenerMap.size() > 0) {
+                    Set<Map.Entry<InetSocketAddress, ReconnectListenerEntity>> entries = reconnectListenerMap.entrySet();
+
+                    for (Map.Entry<InetSocketAddress, ReconnectListenerEntity> entry : entries) {
+                        InetSocketAddress inetSocketAddress = entry.getKey();
+
+                        ReconnectListener reconnectListener = entry.getValue().getReconnectListener();
+                        RpcClientTemplate rpcClientTemplate = entry.getValue().getRpcClientTemplate();
+
+                        rpcClientTemplate.connect(inetSocketAddress.getAddress().getHostAddress(), inetSocketAddress.getPort(), (throwable, sender) -> {
+                            if (throwable == null) {
+                                reconnectListenerMap.remove(inetSocketAddress);
+                                reconnectListener.execute(sender);
+                            }
+                        });
+                    }
                 }
             }
-        }).start();
+        }, 0, 5000);
     }
 }

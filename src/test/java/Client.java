@@ -13,18 +13,19 @@ public class Client {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    sender.addListenerInactive(remoteAddress -> System.out.println(remoteAddress + " disconnect"));
+                    sender.addListenerInactive((remoteAddress, reconnectionHandler) -> {
+                        System.out.println(remoteAddress);
 
-                    MyRequestMessage myRequestMessage = new MyRequestMessage();
-                    myRequestMessage.setTime(System.currentTimeMillis());
+                        reconnectionHandler.add(clientTemplate, reSender -> {
+                            System.out.println(reSender.isActive());
+                        });
+                    });
 
-                    sender.send("test", myRequestMessage, (throwable2, object) -> {
+                    sender.send("test", System.currentTimeMillis(), (throwable2, object) -> {
                         if (throwable2 != null) throwable2.printStackTrace();
-                    }, (Callback<String>) System.out::println);
-
-                    sender.send("test2", "测试2", (throwable3, object) -> {
-                        if (throwable3 != null) throwable3.printStackTrace();
-                    }, (Callback<String>) System.out::println);
+                    }, (Callback<Long>) (time) -> {
+                        System.out.println(System.currentTimeMillis() - time);
+                    });
                 }
             });
         } catch (Exception e) {

@@ -13,19 +13,9 @@ public class Server {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    receiver.receive("test", (Listener<MyRequestMessage>) (requestMessage, channel) -> {
-                        System.out.println(requestMessage.getTime());
-
-                        channel.response("test", (throwable2, object) -> {
+                    receiver.receive("test", (Listener<Long>) (time, channel) -> {
+                        channel.response(time, (throwable2, object) -> {
                             if (throwable2 != null) throwable2.printStackTrace();
-                        });
-                    });
-
-                    receiver.receive("test2", (Listener<String>) (requestMessage, channel) -> {
-                        System.out.println(requestMessage);
-
-                        channel.response("test2", (throwable3, object) -> {
-                            if (throwable3 != null) throwable3.printStackTrace();
                         });
                     });
                 }

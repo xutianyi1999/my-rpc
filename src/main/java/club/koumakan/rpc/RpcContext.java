@@ -2,9 +2,11 @@ package club.koumakan.rpc;
 
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.Inactive;
+import club.koumakan.rpc.client.ReconnectListenerEntity;
 import club.koumakan.rpc.server.Listener;
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,6 +17,9 @@ public class RpcContext {
 
     //client 连接中断监听
     public static final Map<Channel, Inactive> inactiveMap = new ConcurrentHashMap<>();
+
+    //client 重连成功监听
+    public static final Map<InetSocketAddress, ReconnectListenerEntity> reconnectListenerMap = new ConcurrentHashMap<>();
 
     //server 接收监听
     public static final Map<Integer, Map<String, Listener>> listenerMap = new ConcurrentHashMap<>();
