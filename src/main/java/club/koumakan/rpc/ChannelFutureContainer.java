@@ -1,9 +1,9 @@
 package club.koumakan.rpc;
 
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.util.concurrent.GenericFutureListener;
 
-public class ChannelFutureContainer implements ChannelFutureListener {
+public class ChannelFutureContainer implements GenericFutureListener<ChannelFuture> {
 
     private Future future;
 
