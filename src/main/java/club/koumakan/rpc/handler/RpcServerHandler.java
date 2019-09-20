@@ -25,6 +25,8 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Call> {
 
             if (listener != null) {
                 listener.read(msg.getData(), new Channel(ctx, msg));
+            } else {
+                System.out.println("Function not matched: " + msg.getFunctionCode());
             }
         }
     }
