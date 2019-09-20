@@ -1,11 +1,11 @@
 package club.koumakan.rpc.channel;
 
+import club.koumakan.rpc.ChannelFutureContainer;
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 
@@ -23,17 +23,12 @@ public class Sender {
 
     public void send(String functionCode, Object requestMessage, Future future, Callback callback) {
         Call call = new Call(requestMessage, functionCode);
-
-        channel.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture ->
-                future.execute(channelFuture.cause(), null));
-
+        channel.writeAndFlush(call).addListener(new ChannelFutureContainer(future));
         callbackMap.put(call.CALL_ID, callback);
     }
 
     public void close(Future future) {
-        channel.close().addListener((ChannelFutureListener) channelFuture ->
-                future.execute(channelFuture.cause(), null));
-
+        channel.close().addListener(new ChannelFutureContainer(future));
         inactiveMap.remove(channel);
     }
 

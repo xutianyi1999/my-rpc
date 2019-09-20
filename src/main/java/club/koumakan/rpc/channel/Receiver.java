@@ -1,9 +1,9 @@
 package club.koumakan.rpc.channel;
 
+import club.koumakan.rpc.ChannelFutureContainer;
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.server.Listener;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -35,8 +35,6 @@ public class Receiver {
 
     public void close(Future future) {
         listenerMap.remove(inetSocketAddress.getPort());
-
-        channel.close().addListener((ChannelFutureListener) channelFuture ->
-                future.execute(channelFuture.cause(), null));
+        channel.close().addListener(new ChannelFutureContainer(future));
     }
 }
