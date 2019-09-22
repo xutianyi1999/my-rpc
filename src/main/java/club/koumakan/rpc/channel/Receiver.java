@@ -9,7 +9,8 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static club.koumakan.rpc.RpcContext.listenerMap;
+import static club.koumakan.rpc.commons.ServerContext.listenerMap;
+
 
 public class Receiver {
 

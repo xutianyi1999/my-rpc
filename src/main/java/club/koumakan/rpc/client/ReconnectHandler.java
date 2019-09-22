@@ -4,7 +4,8 @@ import club.koumakan.rpc.template.RpcClientTemplate;
 
 import java.net.InetSocketAddress;
 
-import static club.koumakan.rpc.RpcContext.reconnectListenerMap;
+import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
+
 
 public class ReconnectHandler {
 

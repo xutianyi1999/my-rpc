@@ -10,7 +10,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import static club.koumakan.rpc.RpcContext.listenerMap;
+import static club.koumakan.rpc.commons.ServerContext.listenerMap;
+
 
 @ChannelHandler.Sharable
 public class RpcServerHandler extends SimpleChannelInboundHandler<Call> {

@@ -18,4 +18,8 @@ public class RpcServerTemplate {
         serverBootstrap.bind(port).addListener((GenericFutureListener<ChannelFuture>) channelFuture ->
                 future.execute(channelFuture.cause(), new Receiver(channelFuture.channel())));
     }
+
+    public void bind(int port, Future<Receiver> future, String key) {
+        bind(port, future);
+    }
 }

@@ -4,6 +4,8 @@ import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.ReconnectListener;
 import club.koumakan.rpc.client.ReconnectListenerEntity;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
+import club.koumakan.rpc.handler.AesDecoder;
+import club.koumakan.rpc.handler.AesEncoder;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
 import club.koumakan.rpc.message.entity.Call;
@@ -20,6 +22,7 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -32,8 +35,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static club.koumakan.rpc.ClassResolverType.*;
-import static club.koumakan.rpc.RpcContext.callbackMap;
-import static club.koumakan.rpc.RpcContext.reconnectListenerMap;
+import static club.koumakan.rpc.commons.ClientContext.callbackMap;
+import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
 
 public class RpcFactory {
 
@@ -108,23 +111,23 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType) throws RpcFactoryInitException {
-        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType)));
+    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType, boolean isEncrypt) throws RpcFactoryInitException {
+        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType), isEncrypt));
     }
 
     public static RpcClientTemplate createClientTemplate() throws RpcFactoryInitException {
-        return createClientTemplate(weakCachingResolver);
+        return createClientTemplate(weakCachingResolver, false);
     }
 
-    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType) throws RpcFactoryInitException {
-        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType)));
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean isEncrypt) throws RpcFactoryInitException {
+        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), isEncrypt));
     }
 
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
-        return createServerTemplate(weakCachingResolver);
+        return createServerTemplate(weakCachingResolver, false);
     }
 
-    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
+    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean isEncrypt) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
             throw new RpcFactoryInitException("Not initialized");
         }
@@ -134,13 +137,25 @@ public class RpcFactory {
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(serverChannelClass)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
                     protected void initChannel(SocketChannel ch) {
-                        ch.pipeline()
-                                .addLast(new CombinedChannelDuplexHandler<>(
-                                        new ObjectDecoder(classResolver),
-                                        new ObjectEncoder()
-                                ))
-                                .addLast(new RpcServerHandler());
+                        ChannelPipeline pipeline = ch.pipeline();
+
+                        if (isEncrypt) {
+                            pipeline.addLast(new LineBasedFrameDecoder(Integer.MAX_VALUE))
+                                    .addLast(
+                                            new CombinedChannelDuplexHandler<>(
+                                                    new AesDecoder(true),
+                                                    new AesEncoder(true)
+                                            )
+                                    );
+                        }
+
+                        pipeline.addLast(new CombinedChannelDuplexHandler<>(
+                                new ObjectDecoder(classResolver),
+                                new ObjectEncoder()
+                        ));
+                        pipeline.addLast(new RpcServerHandler());
                     }
                 });
         return serverBootstrap;
@@ -162,7 +177,7 @@ public class RpcFactory {
         }
     }
 
-    private static Bootstrap createBootstrap(final ClassResolver classResolver) throws RpcFactoryInitException {
+    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean isEncrypt) throws RpcFactoryInitException {
         if (!CLIENT_INIT && !SERVER_INIT) {
             throw new RpcFactoryInitException("Not initialized");
         }
@@ -175,12 +190,25 @@ public class RpcFactory {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
-                        ch.pipeline()
-                                .addLast(new CombinedChannelDuplexHandler<>(
+                        ChannelPipeline pipeline = ch.pipeline();
+
+                        if (isEncrypt) {
+                            pipeline.addLast(new LineBasedFrameDecoder(Integer.MAX_VALUE))
+                                    .addLast(
+                                            new CombinedChannelDuplexHandler<>(
+                                                    new AesDecoder(false),
+                                                    new AesEncoder(false)
+                                            )
+                                    );
+                        }
+
+                        pipeline.addLast(
+                                new CombinedChannelDuplexHandler<>(
                                         new ObjectDecoder(classResolver),
                                         new ObjectEncoder()
                                 ))
-                                .addLast(new RpcClientHandler());
+                        ;
+                        pipeline.addLast(new RpcClientHandler());
                     }
                 });
 

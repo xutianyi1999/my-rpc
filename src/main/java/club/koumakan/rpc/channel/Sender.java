@@ -9,8 +9,8 @@ import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 
-import static club.koumakan.rpc.RpcContext.callbackMap;
-import static club.koumakan.rpc.RpcContext.inactiveMap;
+import static club.koumakan.rpc.commons.ClientContext.callbackMap;
+import static club.koumakan.rpc.commons.ClientContext.inactiveMap;
 
 
 public class Sender {
