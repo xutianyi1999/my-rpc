@@ -2,14 +2,16 @@ import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.template.RpcClientTemplate;
 
+import static club.koumakan.rpc.ClassResolverType.weakCachingResolver;
+
 public class Client {
 
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate();
+            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(weakCachingResolver, true);
 
-            clientTemplate.connect("127.0.0.1", 10000, (throwable, sender) -> {
+            clientTemplate.connect("127.0.0.1", 10000, "123", (throwable, sender) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {

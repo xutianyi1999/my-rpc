@@ -28,8 +28,8 @@ public class Sender {
     }
 
     public void close(Future future) {
-        channel.close().addListener(new ChannelFutureContainer(future));
         inactiveMap.remove(channel);
+        channel.close().addListener(new ChannelFutureContainer(future));
     }
 
     public InetSocketAddress getRemoteAddress() {

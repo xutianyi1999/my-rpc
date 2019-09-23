@@ -3,7 +3,7 @@ package club.koumakan.rpc.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
 import javax.crypto.Cipher;
 import java.net.InetSocketAddress;
@@ -13,7 +13,7 @@ import static club.koumakan.rpc.commons.Context.decodeCipherMap;
 
 
 @ChannelHandler.Sharable
-public class AesDecoder extends ByteToMessageDecoder {
+public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     private boolean isServer;
 

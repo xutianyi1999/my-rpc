@@ -3,6 +3,7 @@ package club.koumakan.rpc.handler;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.client.ReconnectHandler;
+import club.koumakan.rpc.commons.Context;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,6 +31,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         Inactive inactive = inactiveMap.get(ctx.channel());
+        Context.removeCipher((InetSocketAddress) ctx.channel().remoteAddress());
 
         if (inactive != null) {
             inactiveMap.remove(ctx.channel());

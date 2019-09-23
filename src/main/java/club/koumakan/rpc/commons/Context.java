@@ -23,9 +23,14 @@ public class Context {
     // 加密map
     public final static Map<InetSocketAddress, Cipher> encodeCipherMap = new ConcurrentHashMap<>();
 
-    public static void addKey(String key, InetSocketAddress inetSocketAddress) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void addCipher(String key, InetSocketAddress inetSocketAddress) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
         decodeCipherMap.put(inetSocketAddress, getCipher(key, DECRYPT_MODE));
         encodeCipherMap.put(inetSocketAddress, getCipher(key, ENCRYPT_MODE));
+    }
+
+    public static void removeCipher(InetSocketAddress inetSocketAddress) {
+        decodeCipherMap.remove(inetSocketAddress);
+        encodeCipherMap.remove(inetSocketAddress);
     }
 
     public static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
