@@ -19,6 +19,8 @@ import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 public class Context {
 
+    public final static long RANDOM_VALUE = 324435435;
+
     // 解密map
     public final static Map<String, Cipher> decryptMap = new ConcurrentHashMap<>();
 

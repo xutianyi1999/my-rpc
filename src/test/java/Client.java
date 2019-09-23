@@ -22,12 +22,20 @@ public class Client {
                             System.out.println(reSender.isActive());
                         });
                     });
-
-                    sender.send("test", System.currentTimeMillis(), (throwable2, object) -> {
-                        if (throwable2 != null) throwable2.printStackTrace();
-                    }, (Callback<Long>) (time) -> {
-                        System.out.println(System.currentTimeMillis() - time);
-                    });
+                    new Thread(() -> {
+                        while (true) {
+                            sender.send("test", System.currentTimeMillis(), (throwable2, object) -> {
+                                if (throwable2 != null) throwable2.printStackTrace();
+                            }, (Callback<Long>) (time) -> {
+                                System.out.println(System.currentTimeMillis() - time);
+                            });
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
             });
         } catch (Exception e) {

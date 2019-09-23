@@ -22,7 +22,7 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -37,6 +37,7 @@ import java.util.TimerTask;
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
 import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
+import static club.koumakan.rpc.commons.Context.RANDOM_VALUE;
 
 public class RpcFactory {
 
@@ -142,7 +143,7 @@ public class RpcFactory {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         if (isEncrypt) {
-                            pipeline.addLast(new LineBasedFrameDecoder(Integer.MAX_VALUE))
+                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(RANDOM_VALUE)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
                                                     new AesDecoder(true),
@@ -193,7 +194,7 @@ public class RpcFactory {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         if (isEncrypt) {
-                            pipeline.addLast(new LineBasedFrameDecoder(Integer.MAX_VALUE))
+                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(RANDOM_VALUE)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
                                                     new AesDecoder(false),
