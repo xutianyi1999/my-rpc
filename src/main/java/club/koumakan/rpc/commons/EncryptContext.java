@@ -45,6 +45,7 @@ public class EncryptContext {
         } else {
             ipAddress = inetAddress.getHostAddress();
         }
+        System.out.println(ipAddress);
         return ipAddress + ":" + inetSocketAddress.getPort();
     }
 
