@@ -26,8 +26,8 @@ public class RpcClientTemplate {
     public void connect(String ipAddress, int port, String key, Future<Sender> future) {
         bootstrap.connect(ipAddress, port).addListener((GenericFutureListener<ChannelFuture>) channelFuture -> {
             Channel channel = channelFuture.channel();
-            future.execute(channelFuture.cause(), new Sender(channel));
             Context.addCipher(key, (InetSocketAddress) channel.remoteAddress());
+            future.execute(channelFuture.cause(), new Sender(channel));
         });
     }
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public interface ClientContext {
 
-    //client 回调监听
+    //client 回调监听 key:CallId
     Map<String, Callback> callbackMap = new ConcurrentHashMap<>();
 
     //client 连接中断监听

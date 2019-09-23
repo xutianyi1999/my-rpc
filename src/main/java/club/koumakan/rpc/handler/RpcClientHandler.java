@@ -31,11 +31,11 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         Inactive inactive = inactiveMap.get(ctx.channel());
-        Context.removeCipher((InetSocketAddress) ctx.channel().remoteAddress());
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        Context.removeCipher(inetSocketAddress);
 
         if (inactive != null) {
             inactiveMap.remove(ctx.channel());
-            InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
             inactive.execute(inetSocketAddress, new ReconnectHandler(inetSocketAddress));
         }
     }
