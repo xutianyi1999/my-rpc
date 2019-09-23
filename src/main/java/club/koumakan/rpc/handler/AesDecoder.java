@@ -37,7 +37,7 @@ public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
 
         if (cipher != null) {
             //删除一个原有分割符占用
-            byte[] ciphertext = new byte[in.readableBytes() - 1];
+            byte[] ciphertext = new byte[in.readableBytes()];
             in.readBytes(ciphertext);
             byte[] plaintext = cipher.doFinal(ciphertext);
             ByteBuf byteBuf = ctx.alloc().buffer().writeBytes(plaintext);
