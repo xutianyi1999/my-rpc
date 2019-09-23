@@ -25,9 +25,13 @@ public class RpcServerTemplate {
 
     public void bind(int port, String key, Future<Receiver> future) {
         serverBootstrap.bind(port).addListener((GenericFutureListener<ChannelFuture>) channelFuture -> {
-            Channel channel = channelFuture.channel();
-            Context.addCipher(key, (InetSocketAddress) channel.localAddress());
-            future.execute(channelFuture.cause(), new Receiver(channel));
+            if (channelFuture.cause() != null) {
+                future.execute(channelFuture.cause(), null);
+            } else {
+                Channel channel = channelFuture.channel();
+                Context.addCipher(key, (InetSocketAddress) channel.localAddress());
+                future.execute(null, new Receiver(channel));
+            }
         });
     }
 }
