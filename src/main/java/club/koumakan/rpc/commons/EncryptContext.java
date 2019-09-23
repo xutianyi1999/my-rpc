@@ -4,7 +4,6 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -41,8 +40,8 @@ public class EncryptContext {
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String ipAddress;
 
-        if (inetAddress instanceof Inet6Address) {
-            ipAddress = "127.0.0.1";
+        if (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress()) {
+            ipAddress = "0.0.0.0";
         } else {
             ipAddress = inetAddress.getHostAddress();
         }
