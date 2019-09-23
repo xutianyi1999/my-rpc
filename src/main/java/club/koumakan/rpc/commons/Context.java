@@ -4,6 +4,8 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -34,10 +36,15 @@ public class Context {
     }
 
     public static String translateMapKey(InetSocketAddress inetSocketAddress) {
-        String ipAddress = inetSocketAddress.getAddress().getHostAddress();
-        int port = inetSocketAddress.getPort();
-        ipAddress = ipAddress.replace("0:0:0:0:0:0:0:0", "127.0.0.1");
-        return ipAddress + ":" + port;
+        InetAddress inetAddress = inetSocketAddress.getAddress();
+        String ipAddress;
+
+        if (inetAddress instanceof Inet6Address) {
+            ipAddress = inetAddress.getHostAddress().replace("0:0:0:0:0:0:0:0", "127.0.0.1");
+        } else {
+            ipAddress = inetAddress.getHostAddress();
+        }
+        return ipAddress + ":" + inetSocketAddress.getPort();
     }
 
     public static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
