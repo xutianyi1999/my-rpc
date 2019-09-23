@@ -36,7 +36,6 @@ public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
         cipher = decryptMap.get(Context.translateMapKey(inetSocketAddress));
 
         if (cipher != null) {
-            //删除一个原有分割符占用
             byte[] ciphertext = new byte[in.readableBytes()];
             in.readBytes(ciphertext);
             byte[] plaintext = cipher.doFinal(ciphertext);
