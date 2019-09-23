@@ -37,7 +37,7 @@ import java.util.TimerTask;
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
 import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
-import static club.koumakan.rpc.commons.Context.RANDOM_VALUE;
+import static club.koumakan.rpc.commons.EncryptContext.RANDOM_VALUE;
 
 public class RpcFactory {
 

@@ -1,6 +1,6 @@
 package club.koumakan.rpc.handler;
 
-import club.koumakan.rpc.commons.Context;
+import club.koumakan.rpc.commons.EncryptContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,7 +10,7 @@ import javax.crypto.Cipher;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import static club.koumakan.rpc.commons.Context.decryptMap;
+import static club.koumakan.rpc.commons.EncryptContext.decryptMap;
 
 
 @ChannelHandler.Sharable
@@ -33,7 +33,7 @@ public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
             inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
         }
 
-        cipher = decryptMap.get(Context.translateMapKey(inetSocketAddress));
+        cipher = decryptMap.get(EncryptContext.translateMapKey(inetSocketAddress));
 
         if (cipher != null) {
             byte[] ciphertext = new byte[in.readableBytes()];

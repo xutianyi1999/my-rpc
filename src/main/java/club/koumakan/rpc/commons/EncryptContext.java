@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-public class Context {
+public class EncryptContext {
 
     public final static long RANDOM_VALUE = 324435435;
 
@@ -42,14 +42,14 @@ public class Context {
         String ipAddress;
 
         if (inetAddress instanceof Inet6Address) {
-            ipAddress = inetAddress.getHostAddress().replace("0:0:0:0:0:0:0:0", "127.0.0.1");
+            ipAddress = "127.0.0.1";
         } else {
             ipAddress = inetAddress.getHostAddress();
         }
         return ipAddress + ":" + inetSocketAddress.getPort();
     }
 
-    public static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    private static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         secureRandom.setSeed(key.getBytes(StandardCharsets.UTF_8));
 
