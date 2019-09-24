@@ -37,7 +37,7 @@ public class Receiver {
 
     public void close(Future future) {
         listenerMap.remove(inetSocketAddress.getPort());
-        EncryptContext.removeCipher(inetSocketAddress);
+        EncryptContext.removeCipher(channel);
         channel.close().addListener(new ChannelFutureContainer(future));
     }
 }

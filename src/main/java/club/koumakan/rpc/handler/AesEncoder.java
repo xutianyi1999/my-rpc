@@ -1,13 +1,12 @@
 package club.koumakan.rpc.handler;
 
-import club.koumakan.rpc.commons.EncryptContext;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 import javax.crypto.Cipher;
-import java.net.InetSocketAddress;
 
 import static club.koumakan.rpc.commons.EncryptContext.RANDOM_VALUE;
 import static club.koumakan.rpc.commons.EncryptContext.encryptMap;
@@ -24,15 +23,15 @@ public class AesEncoder extends MessageToByteEncoder<ByteBuf> {
     @Override
     protected void encode(ChannelHandlerContext ctx, ByteBuf msg, ByteBuf out) throws Exception {
         Cipher cipher;
-        InetSocketAddress inetSocketAddress;
+        Channel channel;
 
         if (isServer) {
-            inetSocketAddress = (InetSocketAddress) ctx.channel().localAddress();
+            channel = ctx.channel().parent();
         } else {
-            inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+            channel = ctx.channel();
         }
 
-        cipher = encryptMap.get(EncryptContext.translateMapKey(inetSocketAddress));
+        cipher = encryptMap.get(channel);
 
         if (cipher != null) {
             byte[] plaintext = new byte[msg.readableBytes()];

@@ -1,13 +1,12 @@
 package club.koumakan.rpc.handler;
 
-import club.koumakan.rpc.commons.EncryptContext;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 import javax.crypto.Cipher;
-import java.net.InetSocketAddress;
 import java.util.List;
 
 import static club.koumakan.rpc.commons.EncryptContext.decryptMap;
@@ -25,15 +24,15 @@ public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         Cipher cipher;
-        InetSocketAddress inetSocketAddress;
+        Channel channel;
 
         if (isServer) {
-            inetSocketAddress = (InetSocketAddress) ctx.channel().localAddress();
+            channel = ctx.channel().parent();
         } else {
-            inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+            channel = ctx.channel();
         }
 
-        cipher = decryptMap.get(EncryptContext.translateMapKey(inetSocketAddress));
+        cipher = decryptMap.get(channel);
 
         if (cipher != null) {
             byte[] ciphertext = new byte[in.readableBytes()];

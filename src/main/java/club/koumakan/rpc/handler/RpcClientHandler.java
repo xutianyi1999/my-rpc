@@ -5,6 +5,7 @@ import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.client.ReconnectHandler;
 import club.koumakan.rpc.commons.EncryptContext;
 import club.koumakan.rpc.message.entity.Call;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -30,12 +31,13 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        Inactive inactive = inactiveMap.get(ctx.channel());
-        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        EncryptContext.removeCipher(inetSocketAddress);
+        Channel channel = ctx.channel();
+        Inactive inactive = inactiveMap.get(channel);
+        EncryptContext.removeCipher(channel);
 
         if (inactive != null) {
             inactiveMap.remove(ctx.channel());
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
             inactive.execute(inetSocketAddress, new ReconnectHandler(inetSocketAddress));
         }
     }

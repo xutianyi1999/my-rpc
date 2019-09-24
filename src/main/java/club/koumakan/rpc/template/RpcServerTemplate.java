@@ -8,8 +8,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 
-import java.net.InetSocketAddress;
-
 public class RpcServerTemplate {
 
     private ServerBootstrap serverBootstrap;
@@ -29,7 +27,7 @@ public class RpcServerTemplate {
                 future.execute(channelFuture.cause(), null);
             } else {
                 Channel channel = channelFuture.channel();
-                EncryptContext.addCipher(key, (InetSocketAddress) channel.localAddress());
+                EncryptContext.addCipher(key, channel);
                 future.execute(null, new Receiver(channel));
             }
         });

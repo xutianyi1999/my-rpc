@@ -1,11 +1,11 @@
 package club.koumakan.rpc.commons;
 
+import io.netty.channel.Channel;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -21,32 +21,19 @@ public class EncryptContext {
     public final static long RANDOM_VALUE = 324435435;
 
     // 解密map
-    public final static Map<String, Cipher> decryptMap = new ConcurrentHashMap<>();
+    public final static Map<Channel, Cipher> decryptMap = new ConcurrentHashMap<>();
 
     // 加密map
-    public final static Map<String, Cipher> encryptMap = new ConcurrentHashMap<>();
+    public final static Map<Channel, Cipher> encryptMap = new ConcurrentHashMap<>();
 
-    public static void addCipher(String key, InetSocketAddress inetSocketAddress) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        decryptMap.put(translateMapKey(inetSocketAddress), getCipher(key, DECRYPT_MODE));
-        encryptMap.put(translateMapKey(inetSocketAddress), getCipher(key, ENCRYPT_MODE));
+    public static void addCipher(String key, Channel channel) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        decryptMap.put(channel, getCipher(key, DECRYPT_MODE));
+        encryptMap.put(channel, getCipher(key, ENCRYPT_MODE));
     }
 
-    public static void removeCipher(InetSocketAddress inetSocketAddress) {
-        decryptMap.remove(translateMapKey(inetSocketAddress));
-        encryptMap.remove(translateMapKey(inetSocketAddress));
-    }
-
-    public static String translateMapKey(InetSocketAddress inetSocketAddress) {
-        InetAddress inetAddress = inetSocketAddress.getAddress();
-        String ipAddress;
-
-        if (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress()) {
-            ipAddress = "0.0.0.0";
-        } else {
-            ipAddress = inetAddress.getHostAddress();
-        }
-        System.out.println(ipAddress);
-        return ipAddress + ":" + inetSocketAddress.getPort();
+    public static void removeCipher(Channel channel) {
+        decryptMap.remove(channel);
+        encryptMap.remove(channel);
     }
 
     private static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
