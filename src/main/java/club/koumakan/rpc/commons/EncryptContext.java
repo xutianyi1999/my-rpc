@@ -36,6 +36,11 @@ public class EncryptContext {
         encryptMap.remove(channel);
     }
 
+    public static void removeAll() {
+        decryptMap.clear();
+        encryptMap.clear();
+    }
+
     private static Cipher getCipher(String key, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
         secureRandom.setSeed(key.getBytes(StandardCharsets.UTF_8));

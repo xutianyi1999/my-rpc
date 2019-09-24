@@ -3,6 +3,9 @@ package club.koumakan.rpc;
 import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.ReconnectListener;
 import club.koumakan.rpc.client.ReconnectListenerEntity;
+import club.koumakan.rpc.commons.ClientContext;
+import club.koumakan.rpc.commons.EncryptContext;
+import club.koumakan.rpc.commons.ServerContext;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.AesDecoder;
 import club.koumakan.rpc.handler.AesEncoder;
@@ -48,6 +51,7 @@ public class RpcFactory {
     private static boolean CLIENT_INIT = false;
 
     private static boolean isClientTaskStart = false;
+    private static Timer timer;
 
     private static EventLoopGroup bossGroup;
     private static EventLoopGroup workerGroup;
@@ -126,6 +130,50 @@ public class RpcFactory {
 
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
         return createServerTemplate(weakCachingResolver, false);
+    }
+
+    public static void destroy() {
+        if (CLIENT_INIT) {
+            clientContextReset();
+            EncryptContext.removeAll();
+        } else {
+            serverContextReset();
+            clientContextReset();
+            EncryptContext.removeAll();
+        }
+
+        SERVER_INIT = false;
+        CLIENT_INIT = false;
+        isClientTaskStart = false;
+
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
+
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+            bossGroup = null;
+        }
+
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+            workerGroup = null;
+        }
+
+        serverChannelClass = null;
+        channelClass = null;
+    }
+
+    private static void clientContextReset() {
+        ClientContext.callbackMap.clear();
+        ClientContext.inactiveMap.clear();
+        ClientContext.reconnectListenerMap.clear();
+    }
+
+    private static void serverContextReset() {
+        ServerContext.listenerMap.clear();
     }
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean isEncrypt) throws RpcFactoryInitException {
@@ -224,7 +272,7 @@ public class RpcFactory {
             isClientTaskStart = true;
         }
 
-        Timer timer = new Timer();
+        timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
