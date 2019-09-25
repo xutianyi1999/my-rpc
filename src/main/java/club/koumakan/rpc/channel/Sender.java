@@ -6,6 +6,8 @@ import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 
@@ -23,13 +25,28 @@ public class Sender {
 
     public void send(String functionCode, Object requestMessage, Future future, Callback callback) {
         Call call = new Call(requestMessage, functionCode);
-        channel.writeAndFlush(call).addListener(new ChannelFutureContainer(future));
-        callbackMap.put(call.CALL_ID, callback);
+
+        channel.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture -> {
+            Throwable throwable = channelFuture.cause();
+
+            if (throwable == null) {
+                callbackMap.put(call.CALL_ID, callback);
+            }
+            future.execute(throwable, null);
+        });
     }
 
     public void close(Future future) {
         inactiveMap.remove(channel);
-        channel.close().addListener(new ChannelFutureContainer(future));
+        ChannelFuture channelFuture = channel.close();
+
+        if (future != null) {
+            channelFuture.addListener(new ChannelFutureContainer(future));
+        }
+    }
+
+    public void close() {
+        close(null);
     }
 
     public InetSocketAddress getRemoteAddress() {
