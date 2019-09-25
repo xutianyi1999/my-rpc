@@ -40,7 +40,7 @@ import java.util.TimerTask;
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
 import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
-import static club.koumakan.rpc.commons.EncryptContext.RANDOM_VALUE;
+import static club.koumakan.rpc.commons.EncryptContext.DELIMITER;
 
 public class RpcFactory {
 
@@ -191,7 +191,7 @@ public class RpcFactory {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         if (isEncrypt) {
-                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(RANDOM_VALUE)))
+                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
                                                     new AesDecoder(true),
@@ -242,7 +242,7 @@ public class RpcFactory {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         if (isEncrypt) {
-                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(RANDOM_VALUE)))
+                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
                                                     new AesDecoder(false),
@@ -255,8 +255,8 @@ public class RpcFactory {
                                 new CombinedChannelDuplexHandler<>(
                                         new ObjectDecoder(classResolver),
                                         new ObjectEncoder()
-                                ))
-                        ;
+                                )
+                        );
                         pipeline.addLast(new RpcClientHandler());
                     }
                 });

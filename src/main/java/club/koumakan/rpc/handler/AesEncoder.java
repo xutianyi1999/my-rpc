@@ -8,7 +8,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import javax.crypto.Cipher;
 
-import static club.koumakan.rpc.commons.EncryptContext.RANDOM_VALUE;
+import static club.koumakan.rpc.commons.EncryptContext.DELIMITER;
 import static club.koumakan.rpc.commons.EncryptContext.encryptMap;
 
 @ChannelHandler.Sharable
@@ -38,7 +38,7 @@ public class AesEncoder extends MessageToByteEncoder<ByteBuf> {
             msg.readBytes(plaintext);
             byte[] ciphertext = cipher.doFinal(plaintext);
             out.writeBytes(ciphertext);
-            out.writeLong(RANDOM_VALUE);
+            out.writeLong(DELIMITER);
         }
     }
 }
