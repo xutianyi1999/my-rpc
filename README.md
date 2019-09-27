@@ -1,7 +1,8 @@
 # my-rpc
 基于netty的异步rpc
 
-## Client
+## Usages
+### Client
 ```java
 import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.client.Callback;
@@ -42,7 +43,7 @@ public class Client {
 }
 ```
 
-## Server
+### Server
 ```java
 import club.koumakan.rpc.RpcFactory;
 import club.koumakan.rpc.server.Listener;
