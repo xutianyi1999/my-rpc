@@ -9,7 +9,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import javax.crypto.Cipher;
 import java.util.List;
 
-import static club.koumakan.rpc.commons.EncryptContext.decryptMap;
+import static club.koumakan.rpc.commons.CryptoContext.decryptMap;
 
 
 @ChannelHandler.Sharable

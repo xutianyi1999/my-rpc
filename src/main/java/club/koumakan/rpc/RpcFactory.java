@@ -4,7 +4,7 @@ import club.koumakan.rpc.client.Callback;
 import club.koumakan.rpc.client.ReconnectListener;
 import club.koumakan.rpc.client.ReconnectListenerEntity;
 import club.koumakan.rpc.commons.ClientContext;
-import club.koumakan.rpc.commons.EncryptContext;
+import club.koumakan.rpc.commons.CryptoContext;
 import club.koumakan.rpc.commons.ServerContext;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.AesDecoder;
@@ -40,7 +40,7 @@ import java.util.TimerTask;
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
 import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
-import static club.koumakan.rpc.commons.EncryptContext.DELIMITER;
+import static club.koumakan.rpc.commons.CryptoContext.DELIMITER;
 
 public class RpcFactory {
 
@@ -135,11 +135,11 @@ public class RpcFactory {
     public static void destroy() {
         if (CLIENT_INIT) {
             clientContextReset();
-            EncryptContext.removeAll();
+            CryptoContext.removeAll();
         } else {
             serverContextReset();
             clientContextReset();
-            EncryptContext.removeAll();
+            CryptoContext.removeAll();
         }
 
         SERVER_INIT = false;

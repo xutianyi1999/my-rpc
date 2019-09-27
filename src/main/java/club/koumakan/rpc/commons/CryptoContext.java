@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 import static javax.crypto.Cipher.ENCRYPT_MODE;
 
-public class EncryptContext {
+public class CryptoContext {
 
     public final static long DELIMITER = 324435435;
 

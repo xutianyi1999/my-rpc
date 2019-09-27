@@ -8,8 +8,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import javax.crypto.Cipher;
 
-import static club.koumakan.rpc.commons.EncryptContext.DELIMITER;
-import static club.koumakan.rpc.commons.EncryptContext.encryptMap;
+import static club.koumakan.rpc.commons.CryptoContext.DELIMITER;
+import static club.koumakan.rpc.commons.CryptoContext.encryptMap;
 
 @ChannelHandler.Sharable
 public class AesEncoder extends MessageToByteEncoder<ByteBuf> {

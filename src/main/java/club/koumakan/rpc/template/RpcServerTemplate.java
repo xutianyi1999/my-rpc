@@ -2,7 +2,7 @@ package club.koumakan.rpc.template;
 
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.channel.Receiver;
-import club.koumakan.rpc.commons.EncryptContext;
+import club.koumakan.rpc.commons.CryptoContext;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -27,7 +27,7 @@ public class RpcServerTemplate {
                 future.execute(channelFuture.cause(), null);
             } else {
                 Channel channel = channelFuture.channel();
-                EncryptContext.addCipher(key, channel);
+                CryptoContext.addCipher(key, channel);
                 future.execute(null, new Receiver(channel));
             }
         });
