@@ -3,7 +3,7 @@ package club.koumakan.rpc.channel;
 import club.koumakan.rpc.ChannelFutureContainer;
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.commons.CryptoContext;
-import club.koumakan.rpc.server.Listener;
+import club.koumakan.rpc.server.functional.Listener;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 

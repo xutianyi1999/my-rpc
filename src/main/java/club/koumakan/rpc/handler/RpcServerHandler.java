@@ -2,7 +2,7 @@ package club.koumakan.rpc.handler;
 
 import club.koumakan.rpc.message.entity.Call;
 import club.koumakan.rpc.server.Channel;
-import club.koumakan.rpc.server.Listener;
+import club.koumakan.rpc.server.functional.Listener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -1,5 +1,6 @@
 package club.koumakan.rpc.client;
 
+import club.koumakan.rpc.client.functional.ReconnectListener;
 import club.koumakan.rpc.template.RpcClientTemplate;
 
 public class ReconnectListenerEntity {

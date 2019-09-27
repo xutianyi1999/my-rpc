@@ -1,4 +1,6 @@
-package club.koumakan.rpc.server;
+package club.koumakan.rpc.server.functional;
+
+import club.koumakan.rpc.server.Channel;
 
 @FunctionalInterface
 public interface Listener<T> {

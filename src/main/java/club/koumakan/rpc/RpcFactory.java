@@ -1,8 +1,8 @@
 package club.koumakan.rpc;
 
-import club.koumakan.rpc.client.Callback;
-import club.koumakan.rpc.client.ReconnectListener;
 import club.koumakan.rpc.client.ReconnectListenerEntity;
+import club.koumakan.rpc.client.functional.Callback;
+import club.koumakan.rpc.client.functional.ReconnectListener;
 import club.koumakan.rpc.commons.ClientContext;
 import club.koumakan.rpc.commons.CryptoContext;
 import club.koumakan.rpc.commons.ServerContext;

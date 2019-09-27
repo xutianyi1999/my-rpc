@@ -1,8 +1,8 @@
 package club.koumakan.rpc.handler;
 
-import club.koumakan.rpc.client.Callback;
-import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.client.ReconnectHandler;
+import club.koumakan.rpc.client.functional.Callback;
+import club.koumakan.rpc.client.functional.Inactive;
 import club.koumakan.rpc.commons.CryptoContext;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;

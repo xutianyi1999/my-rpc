@@ -1,8 +1,8 @@
 package club.koumakan.rpc.commons;
 
-import club.koumakan.rpc.client.Callback;
-import club.koumakan.rpc.client.Inactive;
 import club.koumakan.rpc.client.ReconnectListenerEntity;
+import club.koumakan.rpc.client.functional.Callback;
+import club.koumakan.rpc.client.functional.Inactive;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;

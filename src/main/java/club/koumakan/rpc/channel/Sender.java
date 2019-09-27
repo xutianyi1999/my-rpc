@@ -2,8 +2,8 @@ package club.koumakan.rpc.channel;
 
 import club.koumakan.rpc.ChannelFutureContainer;
 import club.koumakan.rpc.Future;
-import club.koumakan.rpc.client.Callback;
-import club.koumakan.rpc.client.Inactive;
+import club.koumakan.rpc.client.functional.Callback;
+import club.koumakan.rpc.client.functional.Inactive;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

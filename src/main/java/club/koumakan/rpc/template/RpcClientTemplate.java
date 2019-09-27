@@ -2,11 +2,8 @@ package club.koumakan.rpc.template;
 
 import club.koumakan.rpc.Future;
 import club.koumakan.rpc.channel.Sender;
-import club.koumakan.rpc.commons.CryptoContext;
+import club.koumakan.rpc.client.ConnectConfig;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.GenericFutureListener;
 
 public class RpcClientTemplate {
 
@@ -16,20 +13,7 @@ public class RpcClientTemplate {
         this.bootstrap = bootstrap;
     }
 
-    public void connect(String ipAddress, int port, Future<Sender> future) {
-        bootstrap.connect(ipAddress, port).addListener((GenericFutureListener<ChannelFuture>) channelFuture ->
-                future.execute(channelFuture.cause(), new Sender(channelFuture.channel())));
-    }
+    public void connect(ConnectConfig connectConfig, Future<Sender> future) {
 
-    public void connect(String ipAddress, int port, String key, Future<Sender> future) {
-        bootstrap.connect(ipAddress, port).addListener((GenericFutureListener<ChannelFuture>) channelFuture -> {
-            if (channelFuture.cause() != null) {
-                future.execute(channelFuture.cause(), null);
-            } else {
-                Channel channel = channelFuture.channel();
-                CryptoContext.addCipher(key, channel);
-                future.execute(null, new Sender(channel));
-            }
-        });
     }
 }

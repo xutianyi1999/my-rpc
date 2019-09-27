@@ -5,7 +5,7 @@
 ### Client
 ```java
 import club.koumakan.rpc.RpcFactory;
-import club.koumakan.rpc.client.Callback;
+import club.koumakan.rpc.client.functional.Callback;
 import club.koumakan.rpc.template.RpcClientTemplate;
 
 import static club.koumakan.rpc.ClassResolverType.weakCachingResolver;
@@ -46,7 +46,7 @@ public class Client {
 ### Server
 ```java
 import club.koumakan.rpc.RpcFactory;
-import club.koumakan.rpc.server.Listener;
+import club.koumakan.rpc.server.functional.Listener;
 import club.koumakan.rpc.template.RpcServerTemplate;
 
 import static club.koumakan.rpc.ClassResolverType.weakCachingResolver;
