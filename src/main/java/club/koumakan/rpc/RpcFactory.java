@@ -1,10 +1,8 @@
 package club.koumakan.rpc;
 
-import club.koumakan.rpc.client.ReconnectListenerEntity;
 import club.koumakan.rpc.client.functional.Callback;
-import club.koumakan.rpc.client.functional.ReconnectListener;
 import club.koumakan.rpc.commons.ClientContext;
-import club.koumakan.rpc.commons.CryptoContext;
+import club.koumakan.rpc.commons.CryptoUtils;
 import club.koumakan.rpc.commons.ServerContext;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.AesDecoder;
@@ -31,7 +29,6 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -39,7 +36,6 @@ import java.util.TimerTask;
 
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
-import static club.koumakan.rpc.commons.ClientContext.reconnectListenerMap;
 import static club.koumakan.rpc.commons.CryptoContext.DELIMITER;
 
 public class RpcFactory {
@@ -124,8 +120,8 @@ public class RpcFactory {
         return createClientTemplate(weakCachingResolver, false);
     }
 
-    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean isEncrypt) throws RpcFactoryInitException {
-        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), isEncrypt));
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean encrypt) throws RpcFactoryInitException {
+        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), encrypt));
     }
 
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
@@ -135,11 +131,11 @@ public class RpcFactory {
     public static void destroy() {
         if (CLIENT_INIT) {
             clientContextReset();
-            CryptoContext.removeAll();
+            CryptoUtils.removeAll();
         } else {
             serverContextReset();
             clientContextReset();
-            CryptoContext.removeAll();
+            CryptoUtils.removeAll();
         }
 
         SERVER_INIT = false;
@@ -169,7 +165,6 @@ public class RpcFactory {
     private static void clientContextReset() {
         ClientContext.callbackMap.clear();
         ClientContext.inactiveMap.clear();
-        ClientContext.reconnectListenerMap.clear();
     }
 
     private static void serverContextReset() {
@@ -279,40 +274,17 @@ public class RpcFactory {
             public void run() {
                 if (callbackMap.size() > 0) {
                     Set<Map.Entry<String, Callback>> entries = callbackMap.entrySet();
-                    long time = System.currentTimeMillis();
+                    long currentTime = System.currentTimeMillis();
 
                     for (Map.Entry<String, Callback> entry : entries) {
                         long sendTime = Long.parseLong(entry.getKey().split(":")[0]);
 
-                        if (time - sendTime >= 60000) {
+                        if (currentTime - sendTime >= 60000) {
                             callbackMap.remove(entry.getKey());
                         }
                     }
                 }
             }
         }, 0, 10000);
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (reconnectListenerMap.size() > 0) {
-                    Set<Map.Entry<InetSocketAddress, ReconnectListenerEntity>> entries = reconnectListenerMap.entrySet();
-
-                    for (Map.Entry<InetSocketAddress, ReconnectListenerEntity> entry : entries) {
-                        InetSocketAddress inetSocketAddress = entry.getKey();
-
-                        ReconnectListener reconnectListener = entry.getValue().getReconnectListener();
-                        RpcClientTemplate rpcClientTemplate = entry.getValue().getRpcClientTemplate();
-
-                        rpcClientTemplate.connect(inetSocketAddress.getAddress().getHostAddress(), inetSocketAddress.getPort(), (throwable, sender) -> {
-                            if (throwable == null) {
-                                reconnectListenerMap.remove(inetSocketAddress);
-                                reconnectListener.execute(sender);
-                            }
-                        });
-                    }
-                }
-            }
-        }, 0, 30000);
     }
 }

@@ -1,41 +1,24 @@
+import club.koumakan.rpc.ClassResolverType;
 import club.koumakan.rpc.RpcFactory;
-import club.koumakan.rpc.client.Callback;
+import club.koumakan.rpc.client.ConnectConfig;
+import club.koumakan.rpc.client.functional.Callback;
 import club.koumakan.rpc.template.RpcClientTemplate;
-
-import static club.koumakan.rpc.ClassResolverType.weakCachingResolver;
 
 public class Client {
 
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(weakCachingResolver, true);
-
-            clientTemplate.connect("127.0.0.1", 10000, "123", (throwable, sender) -> {
+            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.weakCachingResolver, true);
+            clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", 3, 1000), (throwable, sender) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
-                    sender.addListenerInactive((remoteAddress, reconnectionHandler) -> {
-                        System.out.println(remoteAddress);
-
-                        reconnectionHandler.add(clientTemplate, reSender -> {
-                            System.out.println(reSender.isActive());
-                        });
+                    sender.send("test", System.currentTimeMillis(), (throwable1, object) -> {
+                        if (throwable1 != null) throwable1.printStackTrace();
+                    }, (Callback<Long>) responseMessage -> {
+                        System.out.println(System.currentTimeMillis() - responseMessage);
                     });
-                    new Thread(() -> {
-                        while (true) {
-                            sender.send("test", System.currentTimeMillis(), (throwable2, object) -> {
-                                if (throwable2 != null) throwable2.printStackTrace();
-                            }, (Callback<Long>) (time) -> {
-                                System.out.println(System.currentTimeMillis() - time);
-                            });
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }).start();
                 }
             });
         } catch (Exception e) {
