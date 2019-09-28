@@ -24,6 +24,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.compression.SnappyFrameDecoder;
+import io.netty.handler.codec.compression.SnappyFrameEncoder;
 import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -112,20 +114,20 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType, boolean isEncrypt) throws RpcFactoryInitException {
-        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType), isEncrypt));
+    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression) throws RpcFactoryInitException {
+        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType), encrypt, compression));
     }
 
     public static RpcClientTemplate createClientTemplate() throws RpcFactoryInitException {
-        return createClientTemplate(weakCachingResolver, false);
+        return createClientTemplate(weakCachingResolver, false, false);
     }
 
-    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean encrypt) throws RpcFactoryInitException {
-        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), encrypt));
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression) throws RpcFactoryInitException {
+        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), encrypt, compression));
     }
 
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
-        return createServerTemplate(weakCachingResolver, false);
+        return createServerTemplate(weakCachingResolver, false, false);
     }
 
     public static void destroy() {
@@ -171,7 +173,7 @@ public class RpcFactory {
         ServerContext.listenerMap.clear();
     }
 
-    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean isEncrypt) throws RpcFactoryInitException {
+    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
             throw new RpcFactoryInitException("Not initialized");
         }
@@ -185,7 +187,7 @@ public class RpcFactory {
                     protected void initChannel(SocketChannel ch) {
                         ChannelPipeline pipeline = ch.pipeline();
 
-                        if (isEncrypt) {
+                        if (encrypt) {
                             pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
@@ -193,6 +195,15 @@ public class RpcFactory {
                                                     new AesEncoder(true)
                                             )
                                     );
+                        }
+
+                        if (compression) {
+                            pipeline.addLast(
+                                    new CombinedChannelDuplexHandler<>(
+                                            new SnappyFrameDecoder(),
+                                            new SnappyFrameEncoder()
+                                    )
+                            );
                         }
 
                         pipeline.addLast(new CombinedChannelDuplexHandler<>(
@@ -203,6 +214,54 @@ public class RpcFactory {
                     }
                 });
         return serverBootstrap;
+    }
+
+    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression) throws RpcFactoryInitException {
+        if (!CLIENT_INIT && !SERVER_INIT) {
+            throw new RpcFactoryInitException("Not initialized");
+        }
+
+        Bootstrap bootstrap = new Bootstrap();
+
+        bootstrap.group(workerGroup)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .channel(channelClass)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+
+                        if (encrypt) {
+                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
+                                    .addLast(
+                                            new CombinedChannelDuplexHandler<>(
+                                                    new AesDecoder(false),
+                                                    new AesEncoder(false)
+                                            )
+                                    );
+                        }
+
+                        if (compression) {
+                            pipeline.addLast(
+                                    new CombinedChannelDuplexHandler<>(
+                                            new SnappyFrameDecoder(),
+                                            new SnappyFrameEncoder()
+                                    )
+                            );
+                        }
+
+                        pipeline.addLast(
+                                new CombinedChannelDuplexHandler<>(
+                                        new ObjectDecoder(classResolver),
+                                        new ObjectEncoder()
+                                )
+                        );
+                        pipeline.addLast(new RpcClientHandler());
+                    }
+                });
+
+        clientTask();
+        return bootstrap;
     }
 
     private static ClassResolver getClassResolver(ClassResolverType classResolverType) {
@@ -219,45 +278,6 @@ public class RpcFactory {
         } else {
             return null;
         }
-    }
-
-    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean isEncrypt) throws RpcFactoryInitException {
-        if (!CLIENT_INIT && !SERVER_INIT) {
-            throw new RpcFactoryInitException("Not initialized");
-        }
-
-        Bootstrap bootstrap = new Bootstrap();
-
-        bootstrap.group(workerGroup)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .channel(channelClass)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ChannelPipeline pipeline = ch.pipeline();
-
-                        if (isEncrypt) {
-                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
-                                    .addLast(
-                                            new CombinedChannelDuplexHandler<>(
-                                                    new AesDecoder(false),
-                                                    new AesEncoder(false)
-                                            )
-                                    );
-                        }
-
-                        pipeline.addLast(
-                                new CombinedChannelDuplexHandler<>(
-                                        new ObjectDecoder(classResolver),
-                                        new ObjectEncoder()
-                                )
-                        );
-                        pipeline.addLast(new RpcClientHandler());
-                    }
-                });
-
-        clientTask();
-        return bootstrap;
     }
 
     private static void clientTask() {

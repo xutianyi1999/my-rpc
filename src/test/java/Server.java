@@ -8,7 +8,7 @@ public class Server {
     public static void main(String[] args) {
         try {
             RpcFactory.initServer();
-            RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate(ClassResolverType.weakCachingResolver, true);
+            RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate(ClassResolverType.softCachingConcurrentResolver, true, true);
             serverTemplate.bind(19999, "123", (throwable, receiver) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();

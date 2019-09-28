@@ -9,7 +9,7 @@ public class Client {
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.weakCachingResolver, true);
+            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true);
 
             clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", -1, 1000), (throwable, sender) -> {
                 if (throwable != null) {
@@ -17,11 +17,20 @@ public class Client {
                 } else {
                     sender.addListenerInactive(System.out::println);
 
-                    sender.send("test", System.currentTimeMillis(), (throwable1, object) -> {
-                        if (throwable1 != null) throwable1.printStackTrace();
-                    }, (Callback<Long>) responseMessage -> {
-                        System.out.println(System.currentTimeMillis() - responseMessage);
-                    });
+                    new Thread(() -> {
+                        while (true) {
+                            sender.send("test", System.currentTimeMillis(), (throwable1, object) -> {
+                                if (throwable1 != null) throwable1.printStackTrace();
+                            }, (Callback<Long>) responseMessage -> {
+                                System.out.println(System.currentTimeMillis() - responseMessage);
+                            });
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
                 }
             });
         } catch (Exception e) {
