@@ -15,6 +15,6 @@ public class RpcClientTemplate {
     }
 
     public void connect(ConnectConfig connectConfig, Future<Sender> future) {
-        new ConnectHandler(bootstrap, connectConfig, future).execute();
+        new ConnectHandler(bootstrap, connectConfig, future).connect();
     }
 }

@@ -29,7 +29,6 @@ public class ConnectHandler {
             }
             future.execute(null, new Sender(channel));
         } else {
-
             if (retries != 0) {
                 retries--;
                 channelFuture.cause().printStackTrace();
@@ -47,11 +46,7 @@ public class ConnectHandler {
         this.retries = connectConfig.getRetries();
     }
 
-    public void execute() {
-        connect();
-    }
-
-    private void connect() {
+    public void connect() {
         bootstrap.connect(connectConfig.getIpAddress(), connectConfig.getPort()).addListener(GENERIC_FUTURE_LISTENER);
     }
 }

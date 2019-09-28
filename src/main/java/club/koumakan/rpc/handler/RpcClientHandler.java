@@ -31,8 +31,8 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         Channel channel = ctx.channel();
-        Inactive inactive = inactiveMap.get(channel);
         CryptoUtils.removeCipher(channel);
+        Inactive inactive = inactiveMap.get(channel);
 
         if (inactive != null) {
             inactiveMap.remove(channel);

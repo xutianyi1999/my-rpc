@@ -10,10 +10,13 @@ public class Client {
         try {
             RpcFactory.initClient();
             RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.weakCachingResolver, true);
-            clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", 3, 1000), (throwable, sender) -> {
+
+            clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", -1, 1000), (throwable, sender) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
                 } else {
+                    sender.addListenerInactive(System.out::println);
+
                     sender.send("test", System.currentTimeMillis(), (throwable1, object) -> {
                         if (throwable1 != null) throwable1.printStackTrace();
                     }, (Callback<Long>) responseMessage -> {
