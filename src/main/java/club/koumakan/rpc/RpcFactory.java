@@ -182,6 +182,7 @@ public class RpcFactory {
 
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(serverChannelClass)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
