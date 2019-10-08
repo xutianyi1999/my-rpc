@@ -114,20 +114,20 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression) throws RpcFactoryInitException {
-        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType), encrypt, compression));
+    public static RpcClientTemplate createClientTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
+        return new RpcClientTemplate(createBootstrap(getClassResolver(classResolverType), encrypt, compression, noDelay));
     }
 
     public static RpcClientTemplate createClientTemplate() throws RpcFactoryInitException {
-        return createClientTemplate(weakCachingResolver, false, false);
+        return createClientTemplate(weakCachingResolver, false, false, true);
     }
 
-    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression) throws RpcFactoryInitException {
-        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), encrypt, compression));
+    public static RpcServerTemplate createServerTemplate(ClassResolverType classResolverType, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
+        return new RpcServerTemplate(createServerBootstrap(getClassResolver(classResolverType), encrypt, compression, noDelay));
     }
 
     public static RpcServerTemplate createServerTemplate() throws RpcFactoryInitException {
-        return createServerTemplate(weakCachingResolver, false, false);
+        return createServerTemplate(weakCachingResolver, false, false, true);
     }
 
     public static void destroy() {
@@ -173,7 +173,7 @@ public class RpcFactory {
         ServerContext.listenerMap.clear();
     }
 
-    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression) throws RpcFactoryInitException {
+    private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
         if (!SERVER_INIT) {
             throw new RpcFactoryInitException("Not initialized");
         }
@@ -183,6 +183,7 @@ public class RpcFactory {
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(serverChannelClass)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.TCP_NODELAY, noDelay)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) {
@@ -217,7 +218,7 @@ public class RpcFactory {
         return serverBootstrap;
     }
 
-    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression) throws RpcFactoryInitException {
+    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
         if (!CLIENT_INIT && !SERVER_INIT) {
             throw new RpcFactoryInitException("Not initialized");
         }
@@ -226,6 +227,7 @@ public class RpcFactory {
 
         bootstrap.group(workerGroup)
                 .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, noDelay)
                 .channel(channelClass)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
