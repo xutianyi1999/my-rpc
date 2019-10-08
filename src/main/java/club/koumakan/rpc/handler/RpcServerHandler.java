@@ -16,6 +16,11 @@ import static club.koumakan.rpc.commons.ServerContext.listenerMap;
 @ChannelHandler.Sharable
 public class RpcServerHandler extends SimpleChannelInboundHandler<Call> {
 
+    public static final RpcServerHandler INSTANCE = new RpcServerHandler();
+
+    private RpcServerHandler() {
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Call msg) {
         InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().localAddress();

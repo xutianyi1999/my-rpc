@@ -18,6 +18,11 @@ import static club.koumakan.rpc.commons.ClientContext.inactiveMap;
 @ChannelHandler.Sharable
 public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
 
+    public static final RpcClientHandler INSTANCE = new RpcClientHandler();
+
+    private RpcClientHandler() {
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Call msg) {
         Callback callback = callbackMap.get(msg.CALL_ID);

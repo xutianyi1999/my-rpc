@@ -14,6 +14,7 @@ import club.koumakan.rpc.template.RpcClientTemplate;
 import club.koumakan.rpc.template.RpcServerTemplate;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -55,6 +56,44 @@ public class RpcFactory {
     private static EventLoopGroup workerGroup;
     private static Class<? extends ServerSocketChannel> serverChannelClass;
     private static Class<? extends Channel> channelClass;
+
+    private static final ObjectEncoder OBJECT_ENCODER = new ObjectEncoder();
+    private static DelimiterBasedFrameDecoder delimiterBasedFrameDecoder;
+    private static CombinedChannelDuplexHandler serverAesCodec;
+    private static CombinedChannelDuplexHandler clientAesCodec;
+    private static CombinedChannelDuplexHandler snappyFrameCodec;
+
+    private RpcFactory() {
+    }
+
+    private static DelimiterBasedFrameDecoder getDelimiterBasedFrameDecoder() {
+        if (delimiterBasedFrameDecoder == null) {
+            delimiterBasedFrameDecoder = new DelimiterBasedFrameDecoder(
+                    Integer.MAX_VALUE, ByteBufAllocator.DEFAULT.buffer().writeLong(DELIMITER)
+            );
+        }
+        return delimiterBasedFrameDecoder;
+    }
+
+    private static CombinedChannelDuplexHandler getServerAesCodec() {
+        if (serverAesCodec == null) {
+            serverAesCodec = new CombinedChannelDuplexHandler<>(
+                    new AesDecoder(true),
+                    new AesEncoder(true)
+            );
+        }
+        return serverAesCodec;
+    }
+
+    private static CombinedChannelDuplexHandler getClientAesCodec() {
+        if (clientAesCodec == null) {
+            clientAesCodec = new CombinedChannelDuplexHandler<>(
+                    new AesDecoder(false),
+                    new AesEncoder(false)
+            );
+        }
+        return clientAesCodec;
+    }
 
     public static void initServer() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
@@ -130,6 +169,25 @@ public class RpcFactory {
         return createServerTemplate(weakCachingResolver, false, false, true);
     }
 
+    private static CombinedChannelDuplexHandler getSnappyFrameCodec() {
+        if (snappyFrameCodec == null) {
+            snappyFrameCodec = new CombinedChannelDuplexHandler<>(
+                    new SnappyFrameDecoder(),
+                    new SnappyFrameEncoder()
+            );
+        }
+        return snappyFrameCodec;
+    }
+
+    private static void clientContextReset() {
+        ClientContext.callbackMap.clear();
+        ClientContext.inactiveMap.clear();
+    }
+
+    private static void serverContextReset() {
+        ServerContext.listenerMap.clear();
+    }
+
     public static void destroy() {
         if (CLIENT_INIT) {
             clientContextReset();
@@ -162,15 +220,10 @@ public class RpcFactory {
 
         serverChannelClass = null;
         channelClass = null;
-    }
-
-    private static void clientContextReset() {
-        ClientContext.callbackMap.clear();
-        ClientContext.inactiveMap.clear();
-    }
-
-    private static void serverContextReset() {
-        ServerContext.listenerMap.clear();
+        delimiterBasedFrameDecoder = null;
+        serverAesCodec = null;
+        clientAesCodec = null;
+        snappyFrameCodec = null;
     }
 
     private static ServerBootstrap createServerBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
@@ -190,81 +243,22 @@ public class RpcFactory {
                         ChannelPipeline pipeline = ch.pipeline();
 
                         if (encrypt) {
-                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
-                                    .addLast(
-                                            new CombinedChannelDuplexHandler<>(
-                                                    new AesDecoder(true),
-                                                    new AesEncoder(true)
-                                            )
-                                    );
+                            pipeline.addLast(getDelimiterBasedFrameDecoder())
+                                    .addLast(getServerAesCodec());
                         }
 
                         if (compression) {
-                            pipeline.addLast(
-                                    new CombinedChannelDuplexHandler<>(
-                                            new SnappyFrameDecoder(),
-                                            new SnappyFrameEncoder()
-                                    )
-                            );
+                            pipeline.addLast(getSnappyFrameCodec());
                         }
 
                         pipeline.addLast(new CombinedChannelDuplexHandler<>(
                                 new ObjectDecoder(classResolver),
-                                new ObjectEncoder()
+                                OBJECT_ENCODER
                         ));
-                        pipeline.addLast(new RpcServerHandler());
+                        pipeline.addLast(RpcServerHandler.INSTANCE);
                     }
                 });
         return serverBootstrap;
-    }
-
-    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
-        if (!CLIENT_INIT && !SERVER_INIT) {
-            throw new RpcFactoryInitException("Not initialized");
-        }
-
-        Bootstrap bootstrap = new Bootstrap();
-
-        bootstrap.group(workerGroup)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.TCP_NODELAY, noDelay)
-                .channel(channelClass)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ChannelPipeline pipeline = ch.pipeline();
-
-                        if (encrypt) {
-                            pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
-                                    .addLast(
-                                            new CombinedChannelDuplexHandler<>(
-                                                    new AesDecoder(false),
-                                                    new AesEncoder(false)
-                                            )
-                                    );
-                        }
-
-                        if (compression) {
-                            pipeline.addLast(
-                                    new CombinedChannelDuplexHandler<>(
-                                            new SnappyFrameDecoder(),
-                                            new SnappyFrameEncoder()
-                                    )
-                            );
-                        }
-
-                        pipeline.addLast(
-                                new CombinedChannelDuplexHandler<>(
-                                        new ObjectDecoder(classResolver),
-                                        new ObjectEncoder()
-                                )
-                        );
-                        pipeline.addLast(new RpcClientHandler());
-                    }
-                });
-
-        clientTask();
-        return bootstrap;
     }
 
     private static ClassResolver getClassResolver(ClassResolverType classResolverType) {
@@ -309,5 +303,44 @@ public class RpcFactory {
                 }
             }
         }, 0, 10000);
+    }
+
+    private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
+        if (!CLIENT_INIT && !SERVER_INIT) {
+            throw new RpcFactoryInitException("Not initialized");
+        }
+
+        Bootstrap bootstrap = new Bootstrap();
+
+        bootstrap.group(workerGroup)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, noDelay)
+                .channel(channelClass)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) {
+                        ChannelPipeline pipeline = ch.pipeline();
+
+                        if (encrypt) {
+                            pipeline.addLast(getDelimiterBasedFrameDecoder())
+                                    .addLast(getClientAesCodec());
+                        }
+
+                        if (compression) {
+                            pipeline.addLast(getSnappyFrameCodec());
+                        }
+
+                        pipeline.addLast(
+                                new CombinedChannelDuplexHandler<>(
+                                        new ObjectDecoder(classResolver),
+                                        OBJECT_ENCODER
+                                )
+                        );
+                        pipeline.addLast(RpcClientHandler.INSTANCE);
+                    }
+                });
+
+        clientTask();
+        return bootstrap;
     }
 }
