@@ -142,7 +142,7 @@ public class RpcFactory {
         CLIENT_INIT = true;
     }
 
-    public static void initClient(EventLoopGroup workerGroup, Class<? extends Channel> channelClass) throws RpcFactoryInitException {
+    public static void initClient(EventLoopGroup workerGroup, Class<? extends SocketChannel> channelClass) throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
             throw new RpcFactoryInitException("Already initialized");
         }
