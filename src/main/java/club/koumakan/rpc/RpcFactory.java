@@ -5,10 +5,12 @@ import club.koumakan.rpc.commons.ClientContext;
 import club.koumakan.rpc.commons.CryptoUtils;
 import club.koumakan.rpc.commons.ServerContext;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
-import club.koumakan.rpc.handler.AesDecoder;
-import club.koumakan.rpc.handler.AesEncoder;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
+import club.koumakan.rpc.handler.aes.ClientAesDecoder;
+import club.koumakan.rpc.handler.aes.ClientAesEncoder;
+import club.koumakan.rpc.handler.aes.ServerAesDecoder;
+import club.koumakan.rpc.handler.aes.ServerAesEncoder;
 import club.koumakan.rpc.message.entity.Call;
 import club.koumakan.rpc.template.RpcClientTemplate;
 import club.koumakan.rpc.template.RpcServerTemplate;
@@ -195,8 +197,8 @@ public class RpcFactory {
                             pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
-                                                    AesDecoder.getInstance(true),
-                                                    AesEncoder.getInstance(true)
+                                                    ServerAesDecoder.INSTANCE,
+                                                    ServerAesEncoder.INSTANCE
                                             )
                                     );
                         }
@@ -279,8 +281,8 @@ public class RpcFactory {
                             pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE, ch.alloc().buffer().writeLong(DELIMITER)))
                                     .addLast(
                                             new CombinedChannelDuplexHandler<>(
-                                                    AesDecoder.getInstance(false),
-                                                    AesEncoder.getInstance(false)
+                                                    ClientAesDecoder.INSTANCE,
+                                                    ClientAesEncoder.INSTANCE
                                             )
                                     );
                         }

@@ -13,30 +13,12 @@ import static club.koumakan.rpc.commons.CryptoContext.decryptMap;
 
 
 @ChannelHandler.Sharable
-public class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
+public abstract class AesDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     private boolean isServer;
 
-    private static AesDecoder serverAesDecoder;
-
-    private static AesDecoder clientAesDecoder;
-
-    private AesDecoder(boolean isServer) {
+    protected AesDecoder(boolean isServer) {
         this.isServer = isServer;
-    }
-
-    public static AesDecoder getInstance(boolean isServer) {
-        if (isServer) {
-            if (serverAesDecoder == null) {
-                serverAesDecoder = new AesDecoder(true);
-            }
-            return serverAesDecoder;
-        } else {
-            if (clientAesDecoder == null) {
-                clientAesDecoder = new AesDecoder(false);
-            }
-            return clientAesDecoder;
-        }
     }
 
     @Override
