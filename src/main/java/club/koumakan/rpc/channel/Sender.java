@@ -7,7 +7,6 @@ import club.koumakan.rpc.client.functional.Inactive;
 import club.koumakan.rpc.message.entity.Call;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 
@@ -26,7 +25,7 @@ public class Sender {
     public void send(String functionCode, Object requestMessage, Callback callback) {
         Call call = new Call(requestMessage, functionCode);
 
-        channel.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture -> {
+        channel.writeAndFlush(call).addListener(channelFuture -> {
             Throwable throwable = channelFuture.cause();
 
             if (throwable == null) {
