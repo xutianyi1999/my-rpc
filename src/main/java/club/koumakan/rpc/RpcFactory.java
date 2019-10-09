@@ -46,6 +46,7 @@ public class RpcFactory {
 
     private final static boolean IS_LINUX = System.getProperty("os.name").contains("Linux");
     private final static Class CLAZZ = Call.class;
+    private final static ObjectEncoder OBJECT_ENCODER = new ObjectEncoder();
 
     private static boolean SERVER_INIT = false;
     private static boolean CLIENT_INIT = false;
@@ -214,7 +215,7 @@ public class RpcFactory {
 
                         pipeline.addLast(new CombinedChannelDuplexHandler<>(
                                 new ObjectDecoder(classResolver),
-                                new ObjectEncoder()
+                                OBJECT_ENCODER
                         ));
                         pipeline.addLast(RpcServerHandler.INSTANCE);
                     }
@@ -299,7 +300,7 @@ public class RpcFactory {
                         pipeline.addLast(
                                 new CombinedChannelDuplexHandler<>(
                                         new ObjectDecoder(classResolver),
-                                        new ObjectEncoder()
+                                        OBJECT_ENCODER
                                 )
                         );
                         pipeline.addLast(RpcClientHandler.INSTANCE);
