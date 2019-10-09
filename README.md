@@ -15,7 +15,7 @@ public class Client {
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true);
+            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true, false);
 
             clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", -1, 1000), (throwable, sender) -> {
                 if (throwable != null) {
@@ -57,7 +57,7 @@ public class Server {
     public static void main(String[] args) {
         try {
             RpcFactory.initServer();
-            RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate(ClassResolverType.softCachingConcurrentResolver, true, true);
+            RpcServerTemplate serverTemplate = RpcFactory.createServerTemplate(ClassResolverType.softCachingConcurrentResolver, true, true, false);
             serverTemplate.bind(19999, "123", (throwable, receiver) -> {
                 if (throwable != null) {
                     throwable.printStackTrace();
