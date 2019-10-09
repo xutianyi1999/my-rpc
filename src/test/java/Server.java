@@ -14,7 +14,7 @@ public class Server {
                     throwable.printStackTrace();
                 } else {
                     receiver.receive("test", (Listener<Long>) (requestMessage, channel) -> {
-                        channel.response(requestMessage);
+//                        channel.response(requestMessage);
                     });
                 }
             });

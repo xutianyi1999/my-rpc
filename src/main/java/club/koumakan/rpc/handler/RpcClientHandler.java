@@ -29,7 +29,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<Call> {
 
         if (callback != null) {
             callbackMap.remove(msg.CALL_ID);
-            callback.response(msg.getData());
+            callback.response(null, msg.getData());
         }
     }
 

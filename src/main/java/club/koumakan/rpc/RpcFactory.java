@@ -4,6 +4,7 @@ import club.koumakan.rpc.client.functional.Callback;
 import club.koumakan.rpc.commons.ClientContext;
 import club.koumakan.rpc.commons.CryptoUtils;
 import club.koumakan.rpc.commons.ServerContext;
+import club.koumakan.rpc.exception.CallbackTimeoutException;
 import club.koumakan.rpc.exception.RpcFactoryInitException;
 import club.koumakan.rpc.handler.RpcClientHandler;
 import club.koumakan.rpc.handler.RpcServerHandler;
@@ -58,6 +59,8 @@ public class RpcFactory {
     private static EventLoopGroup workerGroup;
     private static Class<? extends ServerSocketChannel> serverChannelClass;
     private static Class<? extends SocketChannel> channelClass;
+
+    private static int timeout = 10000;
 
     public static void initServer() throws RpcFactoryInitException {
         if (SERVER_INIT || CLIENT_INIT) {
@@ -167,6 +170,7 @@ public class RpcFactory {
 
         serverChannelClass = null;
         channelClass = null;
+        timeout = 10000;
     }
 
     private static void clientContextReset() {
@@ -239,12 +243,18 @@ public class RpcFactory {
         }
     }
 
-    private static void clientTask() {
+    public static void setCallbackTimeout(int timeout) {
+        RpcFactory.timeout = timeout;
+    }
+
+    private static void autoRemoveCallback() {
         if (isClientTaskStart) {
             return;
         } else {
             isClientTaskStart = true;
         }
+
+        final CallbackTimeoutException callbackTimeoutException = new CallbackTimeoutException();
 
         scheduledFuture = workerGroup.scheduleAtFixedRate(() -> {
             if (callbackMap.size() > 0) {
@@ -254,12 +264,13 @@ public class RpcFactory {
                 for (Map.Entry<String, Callback> entry : entries) {
                     long sendTime = Long.parseLong(entry.getKey().split(":")[0]);
 
-                    if (currentTime - sendTime >= 60000) {
+                    if (currentTime - sendTime >= timeout) {
+                        entry.getValue().response(callbackTimeoutException, null);
                         callbackMap.remove(entry.getKey());
                     }
                 }
             }
-        }, 0, 10000, TimeUnit.MILLISECONDS);
+        }, 0, 500, TimeUnit.MILLISECONDS);
     }
 
     private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
@@ -307,7 +318,7 @@ public class RpcFactory {
                     }
                 });
 
-        clientTask();
+        autoRemoveCallback();
         return bootstrap;
     }
 }

@@ -23,7 +23,7 @@ public class Sender {
         this.channel = channel;
     }
 
-    public void send(String functionCode, Object requestMessage, Future future, Callback callback) {
+    public void send(String functionCode, Object requestMessage, Callback callback) {
         Call call = new Call(requestMessage, functionCode);
 
         channel.writeAndFlush(call).addListener((ChannelFutureListener) channelFuture -> {
@@ -31,8 +31,9 @@ public class Sender {
 
             if (throwable == null) {
                 callbackMap.put(call.CALL_ID, callback);
+            } else {
+                callback.response(throwable, null);
             }
-            future.execute(throwable, null);
         });
     }
 
