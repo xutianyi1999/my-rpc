@@ -16,8 +16,26 @@ public class AesEncoder extends MessageToByteEncoder<ByteBuf> {
 
     private boolean isServer;
 
-    public AesEncoder(boolean isServer) {
+    private static AesEncoder serverAesEncoder;
+
+    private static AesEncoder clientAesEncoder;
+
+    private AesEncoder(boolean isServer) {
         this.isServer = isServer;
+    }
+
+    public static AesEncoder getInstance(boolean isServer) {
+        if (isServer) {
+            if (serverAesEncoder == null) {
+                serverAesEncoder = new AesEncoder(true);
+            }
+            return serverAesEncoder;
+        } else {
+            if (clientAesEncoder == null) {
+                clientAesEncoder = new AesEncoder(false);
+            }
+            return clientAesEncoder;
+        }
     }
 
     @Override
