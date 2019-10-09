@@ -31,11 +31,11 @@ import io.netty.handler.codec.serialization.ClassResolver;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import static club.koumakan.rpc.ClassResolverType.*;
 import static club.koumakan.rpc.commons.ClientContext.callbackMap;
@@ -50,7 +50,7 @@ public class RpcFactory {
     private static boolean CLIENT_INIT = false;
 
     private static boolean isClientTaskStart = false;
-    private static Timer timer;
+    private static ScheduledFuture<?> scheduledFuture;
 
     private static EventLoopGroup bossGroup;
     private static EventLoopGroup workerGroup;
@@ -202,10 +202,9 @@ public class RpcFactory {
         CLIENT_INIT = false;
         isClientTaskStart = false;
 
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
-            timer = null;
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
         }
 
         if (bossGroup != null) {
@@ -284,25 +283,20 @@ public class RpcFactory {
             isClientTaskStart = true;
         }
 
-        timer = new Timer();
+        scheduledFuture = workerGroup.scheduleAtFixedRate(() -> {
+            if (callbackMap.size() > 0) {
+                Set<Map.Entry<String, Callback>> entries = callbackMap.entrySet();
+                long currentTime = System.currentTimeMillis();
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (callbackMap.size() > 0) {
-                    Set<Map.Entry<String, Callback>> entries = callbackMap.entrySet();
-                    long currentTime = System.currentTimeMillis();
+                for (Map.Entry<String, Callback> entry : entries) {
+                    long sendTime = Long.parseLong(entry.getKey().split(":")[0]);
 
-                    for (Map.Entry<String, Callback> entry : entries) {
-                        long sendTime = Long.parseLong(entry.getKey().split(":")[0]);
-
-                        if (currentTime - sendTime >= 60000) {
-                            callbackMap.remove(entry.getKey());
-                        }
+                    if (currentTime - sendTime >= 60000) {
+                        callbackMap.remove(entry.getKey());
                     }
                 }
             }
-        }, 0, 10000);
+        }, 0, 10000, TimeUnit.MILLISECONDS);
     }
 
     private static Bootstrap createBootstrap(final ClassResolver classResolver, boolean encrypt, boolean compression, boolean noDelay) throws RpcFactoryInitException {
