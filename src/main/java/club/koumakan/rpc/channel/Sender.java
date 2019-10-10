@@ -24,13 +24,13 @@ public class Sender {
 
     public void send(String functionCode, Object requestMessage, Callback callback) {
         Call call = new Call(requestMessage, functionCode);
+        callbackMap.put(call.CALL_ID, callback);
 
         channel.writeAndFlush(call).addListener(channelFuture -> {
             Throwable throwable = channelFuture.cause();
 
-            if (throwable == null) {
-                callbackMap.put(call.CALL_ID, callback);
-            } else {
+            if (throwable != null) {
+                callbackMap.remove(call.CALL_ID);
                 callback.response(throwable, null);
             }
         });

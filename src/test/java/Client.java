@@ -9,7 +9,6 @@ public class Client {
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcFactory.setCallbackTimeout(1000);
             RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true, false);
 
             clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", -1, 1000),
@@ -31,7 +30,7 @@ public class Client {
                                             });
 
                                     try {
-                                        Thread.sleep(1000);
+                                        Thread.sleep(10);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
