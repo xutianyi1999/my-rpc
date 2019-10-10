@@ -1,8 +1,8 @@
-import club.koumakan.rpc.ClassResolverType;
-import club.koumakan.rpc.RpcFactory;
-import club.koumakan.rpc.client.ConnectConfig;
-import club.koumakan.rpc.client.functional.Callback;
-import club.koumakan.rpc.template.RpcClientTemplate;
+import club.koumakan.rpc.core.ClassResolverType;
+import club.koumakan.rpc.core.RpcFactory;
+import club.koumakan.rpc.core.client.ConnectConfig;
+import club.koumakan.rpc.core.client.functional.Callback;
+import club.koumakan.rpc.core.template.RpcClientTemplate;
 
 public class Client {
 
@@ -30,7 +30,7 @@ public class Client {
                                             });
 
                                     try {
-                                        Thread.sleep(10);
+                                        Thread.sleep(100);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
