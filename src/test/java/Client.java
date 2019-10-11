@@ -1,15 +1,15 @@
 import club.koumakan.rpc.core.ClassResolverType;
 import club.koumakan.rpc.core.RpcFactory;
 import club.koumakan.rpc.core.client.ConnectConfig;
+import club.koumakan.rpc.core.client.RpcClient;
 import club.koumakan.rpc.core.client.functional.Callback;
-import club.koumakan.rpc.core.template.RpcClientTemplate;
 
 public class Client {
 
     public static void main(String[] args) {
         try {
             RpcFactory.initClient();
-            RpcClientTemplate clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true, false);
+            RpcClient clientTemplate = RpcFactory.createClientTemplate(ClassResolverType.softCachingConcurrentResolver, true, true, false);
 
             clientTemplate.connect(new ConnectConfig("127.0.0.1", 19999, "123", -1, 1000),
                     (throwable, sender) -> {

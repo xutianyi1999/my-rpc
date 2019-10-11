@@ -1,7 +1,6 @@
 package club.koumakan.rpc.core.client;
 
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.channel.Sender;
 import club.koumakan.rpc.core.commons.CryptoUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;

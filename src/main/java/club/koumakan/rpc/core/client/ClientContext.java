@@ -1,4 +1,4 @@
-package club.koumakan.rpc.core.commons;
+package club.koumakan.rpc.core.client;
 
 import club.koumakan.rpc.core.client.functional.Callback;
 import club.koumakan.rpc.core.client.functional.Inactive;

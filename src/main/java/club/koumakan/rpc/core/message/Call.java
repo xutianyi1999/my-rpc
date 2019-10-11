@@ -1,4 +1,4 @@
-package club.koumakan.rpc.core.message.entity;
+package club.koumakan.rpc.core.message;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -16,15 +16,16 @@ public class Call implements Serializable {
         this.functionCode = functionCode;
     }
 
-    public String getFunctionCode() {
-        return functionCode;
+    public Call setData(Object data) {
+        this.data = data;
+        return this;
     }
 
     public Object getData() {
         return data;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public String getFunctionCode() {
+        return functionCode;
     }
 }

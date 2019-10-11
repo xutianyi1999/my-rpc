@@ -1,16 +1,13 @@
-package club.koumakan.rpc.core.template;
+package club.koumakan.rpc.core.client;
 
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.channel.Sender;
-import club.koumakan.rpc.core.client.ConnectConfig;
-import club.koumakan.rpc.core.client.ConnectHandler;
 import io.netty.bootstrap.Bootstrap;
 
-public class RpcClientTemplate {
+public class RpcClient {
 
     private Bootstrap bootstrap;
 
-    public RpcClientTemplate(Bootstrap bootstrap) {
+    public RpcClient(Bootstrap bootstrap) {
         this.bootstrap = bootstrap;
     }
 

@@ -1,40 +1,37 @@
-package club.koumakan.rpc.core.template;
+package club.koumakan.rpc.core.server;
 
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.channel.Receiver;
 import club.koumakan.rpc.core.commons.CryptoUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 
-public class RpcServerTemplate {
+public class RpcServer {
 
     private ServerBootstrap serverBootstrap;
 
-    public RpcServerTemplate(ServerBootstrap serverBootstrap) {
+    public RpcServer(ServerBootstrap serverBootstrap) {
         this.serverBootstrap = serverBootstrap;
     }
 
-    public void bind(int port, Future<Receiver> future) {
-        serverBootstrap.bind(port).addListener((GenericFutureListener<ChannelFuture>) channelFuture -> {
-            if (channelFuture.cause() != null) {
-                future.execute(channelFuture.cause(), null);
-            } else {
-                future.execute(null, new Receiver(channelFuture.channel()));
-            }
-        });
+    public RpcServer bind(int port, Future<Receiver> future) {
+        return bind(port, null, future);
     }
 
-    public void bind(int port, String key, Future<Receiver> future) {
+    public RpcServer bind(int port, String key, Future<Receiver> future) {
         serverBootstrap.bind(port).addListener((GenericFutureListener<ChannelFuture>) channelFuture -> {
             if (channelFuture.cause() != null) {
                 future.execute(channelFuture.cause(), null);
             } else {
                 Channel channel = channelFuture.channel();
-                CryptoUtils.addCipher(key, channel);
+
+                if (key != null) {
+                    CryptoUtils.addCipher(key, channel);
+                }
                 future.execute(null, new Receiver(channel));
             }
         });
+        return this;
     }
 }

@@ -1,4 +1,4 @@
-package club.koumakan.rpc.core.channel;
+package club.koumakan.rpc.core.server;
 
 import club.koumakan.rpc.core.ChannelFutureContainer;
 import club.koumakan.rpc.core.Future;
@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static club.koumakan.rpc.core.commons.ServerContext.listenerMap;
+import static club.koumakan.rpc.core.server.ServerContext.listenerMap;
 
 
 public class Receiver {
@@ -24,7 +24,7 @@ public class Receiver {
         this.inetSocketAddress = (InetSocketAddress) channel.localAddress();
     }
 
-    public void receive(String functionCode, Listener listener) {
+    public Receiver publish(String functionCode, Listener listener) {
         Map<String, Listener> functionMap = listenerMap.get(inetSocketAddress.getPort());
 
         if (functionMap == null) {
@@ -34,6 +34,7 @@ public class Receiver {
         } else {
             functionMap.put(functionCode, listener);
         }
+        return this;
     }
 
     public void close(Future future) {

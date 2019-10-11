@@ -1,4 +1,4 @@
-package club.koumakan.rpc.core.handler.aes;
+package club.koumakan.rpc.core.client.handler;
 
 import club.koumakan.rpc.core.handler.AesEncoder;
 import io.netty.channel.ChannelHandler;

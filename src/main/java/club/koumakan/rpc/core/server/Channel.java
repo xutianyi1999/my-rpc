@@ -2,7 +2,7 @@ package club.koumakan.rpc.core.server;
 
 import club.koumakan.rpc.core.ChannelFutureContainer;
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.message.entity.Call;
+import club.koumakan.rpc.core.message.Call;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
