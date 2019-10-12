@@ -19,6 +19,16 @@ public class RpcCore {
     private Class<? extends ServerSocketChannel> serverChannelClass;
     private Class<? extends SocketChannel> channelClass;
 
+    public void destroy() {
+        if (bossGroup != null) {
+            bossGroup.shutdownGracefully();
+        }
+
+        if (workerGroup != null) {
+            workerGroup.shutdownGracefully();
+        }
+    }
+
     public static RpcCore server() {
         RpcCore rpcCore = new RpcCore();
 
