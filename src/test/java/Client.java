@@ -24,13 +24,25 @@ public class Client {
                     if (throwable != null) {
                         throwable.printStackTrace();
                     } else {
-                        sender.send("test", "aaaa", (Callback<String>) (throwable2, responseMessage) -> {
-                            if (throwable2 != null) {
-                                throwable2.printStackTrace();
-                            } else {
-                                System.out.println(responseMessage);
+                        sender.addListenerInactive(remoteAddress -> {
+                            System.out.println(remoteAddress.getHostString());
+                        });
+                        new Thread(() -> {
+                            while (true) {
+                                sender.send("test", System.currentTimeMillis(), (Callback<Long>) (throwable2, responseMessage) -> {
+                                    if (throwable2 != null) {
+                                        throwable2.printStackTrace();
+                                    } else {
+                                        System.out.println(System.currentTimeMillis() - responseMessage);
+                                    }
+                                }, 1000);
+                                try {
+                                    Thread.sleep(1);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }, 10000);
+                        }).start();
                     }
                 }
         );
