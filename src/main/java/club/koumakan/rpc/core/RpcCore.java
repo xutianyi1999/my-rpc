@@ -10,7 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class RpcFactoryCore {
+public class RpcCore {
 
     private final static boolean IS_LINUX = System.getProperty("os.name").contains("Linux");
 
@@ -19,62 +19,62 @@ public class RpcFactoryCore {
     private Class<? extends ServerSocketChannel> serverChannelClass;
     private Class<? extends SocketChannel> channelClass;
 
-    public static RpcFactoryCore server() {
-        RpcFactoryCore rpcFactoryCore = new RpcFactoryCore();
+    public static RpcCore server() {
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
-            rpcFactoryCore
+            rpcCore
                     .setBossGroup(new EpollEventLoopGroup())
                     .setWorkerGroup(new EpollEventLoopGroup())
                     .setServerChannelClass(EpollServerSocketChannel.class);
         } else {
-            rpcFactoryCore
+            rpcCore
                     .setBossGroup(new NioEventLoopGroup())
                     .setWorkerGroup(new NioEventLoopGroup())
                     .setServerChannelClass(NioServerSocketChannel.class);
         }
-        return rpcFactoryCore;
+        return rpcCore;
     }
 
-    public static RpcFactoryCore client() {
-        RpcFactoryCore rpcFactoryCore = new RpcFactoryCore();
+    public static RpcCore client() {
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
-            rpcFactoryCore
+            rpcCore
                     .setWorkerGroup(new EpollEventLoopGroup())
                     .setChannelClass(EpollSocketChannel.class);
         } else {
-            rpcFactoryCore
+            rpcCore
                     .setWorkerGroup(new NioEventLoopGroup())
                     .setChannelClass(NioSocketChannel.class);
         }
-        return rpcFactoryCore;
+        return rpcCore;
     }
 
-    public static RpcFactoryCore serverAndClient() {
-        RpcFactoryCore rpcFactoryCore = new RpcFactoryCore();
+    public static RpcCore serverAndClient() {
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
-            rpcFactoryCore
+            rpcCore
                     .setBossGroup(new EpollEventLoopGroup())
                     .setWorkerGroup(new EpollEventLoopGroup())
                     .setServerChannelClass(EpollServerSocketChannel.class)
                     .setChannelClass(EpollSocketChannel.class);
         } else {
-            rpcFactoryCore
+            rpcCore
                     .setBossGroup(new NioEventLoopGroup())
                     .setWorkerGroup(new NioEventLoopGroup())
                     .setServerChannelClass(NioServerSocketChannel.class)
                     .setChannelClass(NioSocketChannel.class);
         }
-        return rpcFactoryCore;
+        return rpcCore;
     }
 
     public EventLoopGroup getBossGroup() {
         return bossGroup;
     }
 
-    public RpcFactoryCore setBossGroup(EventLoopGroup bossGroup) {
+    public RpcCore setBossGroup(EventLoopGroup bossGroup) {
         this.bossGroup = bossGroup;
         return this;
     }
@@ -83,7 +83,7 @@ public class RpcFactoryCore {
         return workerGroup;
     }
 
-    public RpcFactoryCore setWorkerGroup(EventLoopGroup workerGroup) {
+    public RpcCore setWorkerGroup(EventLoopGroup workerGroup) {
         this.workerGroup = workerGroup;
         return this;
     }
@@ -92,7 +92,7 @@ public class RpcFactoryCore {
         return serverChannelClass;
     }
 
-    public RpcFactoryCore setServerChannelClass(Class<? extends ServerSocketChannel> serverChannelClass) {
+    public RpcCore setServerChannelClass(Class<? extends ServerSocketChannel> serverChannelClass) {
         this.serverChannelClass = serverChannelClass;
         return this;
     }
@@ -101,7 +101,7 @@ public class RpcFactoryCore {
         return channelClass;
     }
 
-    public RpcFactoryCore setChannelClass(Class<? extends SocketChannel> channelClass) {
+    public RpcCore setChannelClass(Class<? extends SocketChannel> channelClass) {
         this.channelClass = channelClass;
         return this;
     }

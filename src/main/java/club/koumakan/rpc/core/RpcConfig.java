@@ -5,9 +5,9 @@ import static club.koumakan.rpc.core.RpcFactory.ClassResolverType.weakCachingRes
 public class RpcConfig {
 
     private RpcFactory.ClassResolverType classResolverType = weakCachingResolver;
-    private boolean encrypt = false;
     private boolean compression = false;
     private boolean noDelay = true;
+    private String key;
 
     public RpcFactory.ClassResolverType getClassResolverType() {
         return classResolverType;
@@ -15,15 +15,6 @@ public class RpcConfig {
 
     public RpcConfig setClassResolverType(RpcFactory.ClassResolverType classResolverType) {
         this.classResolverType = classResolverType;
-        return this;
-    }
-
-    public boolean isEncrypt() {
-        return encrypt;
-    }
-
-    public RpcConfig setEncrypt(boolean encrypt) {
-        this.encrypt = encrypt;
         return this;
     }
 
@@ -42,6 +33,15 @@ public class RpcConfig {
 
     public RpcConfig setNoDelay(boolean noDelay) {
         this.noDelay = noDelay;
+        return this;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public RpcConfig setKey(String key) {
+        this.key = key;
         return this;
     }
 }

@@ -2,7 +2,6 @@ package club.koumakan.rpc.core.server;
 
 import club.koumakan.rpc.core.ChannelFutureContainer;
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.commons.CryptoUtils;
 import club.koumakan.rpc.core.server.functional.Listener;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -39,7 +38,6 @@ public class Receiver {
 
     public void close(Future future) {
         listenerMap.remove(inetSocketAddress.getPort());
-        CryptoUtils.removeCipher(channel);
         ChannelFuture channelFuture = channel.close();
 
         if (future != null) {

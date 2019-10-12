@@ -11,7 +11,8 @@ public class RpcClient {
         this.bootstrap = bootstrap;
     }
 
-    public void connect(ConnectConfig connectConfig, Future<Sender> future) {
+    public RpcClient connect(ConnectConfig connectConfig, Future<Sender> future) {
         new ConnectHandler(bootstrap, connectConfig, future).connect();
+        return this;
     }
 }

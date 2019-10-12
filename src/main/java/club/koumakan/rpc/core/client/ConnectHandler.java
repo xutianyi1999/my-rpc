@@ -1,7 +1,6 @@
 package club.koumakan.rpc.core.client;
 
 import club.koumakan.rpc.core.Future;
-import club.koumakan.rpc.core.commons.CryptoUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -23,9 +22,6 @@ public class ConnectHandler {
         Channel channel = channelFuture.channel();
 
         if (channelFuture.isSuccess()) {
-            if (connectConfig.getKey() != null) {
-                CryptoUtils.addCipher(connectConfig.getKey(), channel);
-            }
             future.execute(null, new Sender(channel));
         } else {
             if (retries != 0) {

@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class Call implements Serializable {
 
-    public final String CALL_ID = System.currentTimeMillis() + ":" + UUID.randomUUID().toString();
+    public final String CALL_ID = UUID.randomUUID().toString();
 
     private Object data;
 

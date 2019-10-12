@@ -4,24 +4,30 @@ import club.koumakan.rpc.core.ChannelFutureContainer;
 import club.koumakan.rpc.core.Future;
 import club.koumakan.rpc.core.client.functional.Callback;
 import club.koumakan.rpc.core.client.functional.Inactive;
+import club.koumakan.rpc.core.exception.CallbackTimeoutException;
 import club.koumakan.rpc.core.message.Call;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 
 public class Sender {
 
+    private static final CallbackTimeoutException CALLBACK_TIMEOUT_EXCEPTION = new CallbackTimeoutException();
     private Channel channel;
+    private String channelId;
 
     public Sender(Channel channel) {
         this.channel = channel;
+        this.channelId = channel.id().asShortText();
     }
 
-    public void send(String functionCode, Object requestMessage, Callback callback) {
+    public Sender send(String functionCode, Object requestMessage, Callback callback, int callbackTimeout) {
         Call call = new Call(requestMessage, functionCode);
-        ClientContext.callbackMap.put(call.CALL_ID, callback);
+        CallbackInfo callbackInfo = new CallbackInfo(callback);
+        ClientContext.callbackMap.put(call.CALL_ID, callbackInfo);
 
         channel.writeAndFlush(call).addListener(channelFuture -> {
             Throwable throwable = channelFuture.cause();
@@ -29,12 +35,19 @@ public class Sender {
             if (throwable != null) {
                 ClientContext.callbackMap.remove(call.CALL_ID);
                 callback.response(throwable, null);
+            } else {
+                channel.eventLoop().schedule(() -> {
+                    if (!callbackInfo.isCall()) {
+                        ClientContext.callbackMap.remove(call.CALL_ID);
+                        callback.response(CALLBACK_TIMEOUT_EXCEPTION, null);
+                    }
+                }, callbackTimeout, TimeUnit.MILLISECONDS);
             }
         });
+        return this;
     }
 
     public void close(Future future) {
-        ClientContext.inactiveMap.remove(channel);
         ChannelFuture channelFuture = channel.close();
 
         if (future != null) {
@@ -59,6 +72,6 @@ public class Sender {
     }
 
     public void addListenerInactive(Inactive inactive) {
-        ClientContext.inactiveMap.put(channel, inactive);
+        ClientContext.inactiveMap.put(channelId, inactive);
     }
 }
