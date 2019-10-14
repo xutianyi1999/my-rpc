@@ -38,7 +38,7 @@ public class RpcFactory {
     }
 
     public static RpcServer createRpcServer(RpcCore rpcCore, RpcConfig rpcConfig) {
-        return new RpcServer(createServerBootstrap(rpcCore, rpcConfig), rpcCore);
+        return new RpcServer(createServerBootstrap(rpcCore, rpcConfig));
     }
 
     public static RpcClient createRpcClient(RpcCore rpcCore) {
@@ -46,7 +46,7 @@ public class RpcFactory {
     }
 
     public static RpcClient createRpcClient(RpcCore rpcCore, RpcConfig rpcConfig) {
-        return new RpcClient(createBootstrap(rpcCore, rpcConfig), rpcCore);
+        return new RpcClient(createBootstrap(rpcCore, rpcConfig));
     }
 
     private static ServerBootstrap createServerBootstrap(RpcCore rpcCore, RpcConfig rpcConfig) {
