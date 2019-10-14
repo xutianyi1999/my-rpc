@@ -27,17 +27,14 @@ public class RpcCore {
     private boolean isServer;
 
     private RpcCore(boolean isClient, boolean isServer) throws RpcCoreException {
-        checkIsCreated();
-        this.isClient = isClient;
-        this.isServer = isServer;
-    }
-
-    private static void checkIsCreated() throws RpcCoreException {
         if (isCreate) {
             throw new RpcCoreException("Already created");
         } else {
             isCreate = true;
         }
+
+        this.isClient = isClient;
+        this.isServer = isServer;
     }
 
     public static RpcCore server() throws RpcCoreException {
