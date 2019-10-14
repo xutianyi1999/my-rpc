@@ -23,22 +23,16 @@ public class RpcCore {
     private Class<? extends ServerSocketChannel> serverChannelClass;
     private Class<? extends SocketChannel> channelClass;
 
-    private boolean isClient;
-    private boolean isServer;
-
-    private RpcCore(boolean isClient, boolean isServer) throws RpcCoreException {
+    private RpcCore() throws RpcCoreException {
         if (isCreate) {
             throw new RpcCoreException("Already created");
         } else {
             isCreate = true;
         }
-
-        this.isClient = isClient;
-        this.isServer = isServer;
     }
 
     public static RpcCore server() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore(false, true);
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
             rpcCore
@@ -55,7 +49,7 @@ public class RpcCore {
     }
 
     public static RpcCore client() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore(true, false);
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
             rpcCore
@@ -70,7 +64,7 @@ public class RpcCore {
     }
 
     public static RpcCore serverAndClient() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore(true, true);
+        RpcCore rpcCore = new RpcCore();
 
         if (IS_LINUX) {
             rpcCore
@@ -89,7 +83,7 @@ public class RpcCore {
     }
 
     public static RpcCore createInstance() throws RpcCoreException {
-        return new RpcCore(true, true);
+        return new RpcCore();
     }
 
     public void destroy() {
@@ -101,11 +95,11 @@ public class RpcCore {
             workerGroup.shutdownGracefully();
         }
 
-        if (isServer) {
+        if (serverChannelClass != null) {
             ServerContext.listenerMap.clear();
         }
 
-        if (isClient) {
+        if (channelClass != null) {
             ClientContext.inactiveMap.clear();
             ClientContext.callbackMap.clear();
         }
@@ -146,13 +140,5 @@ public class RpcCore {
     public RpcCore setChannelClass(Class<? extends SocketChannel> channelClass) {
         this.channelClass = channelClass;
         return this;
-    }
-
-    public boolean isClient() {
-        return isClient;
-    }
-
-    public boolean isServer() {
-        return isServer;
     }
 }
