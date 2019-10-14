@@ -147,4 +147,12 @@ public class RpcCore {
         this.channelClass = channelClass;
         return this;
     }
+
+    public boolean isClient() {
+        return isClient;
+    }
+
+    public boolean isServer() {
+        return isServer;
+    }
 }
