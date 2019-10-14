@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Sender {
 
-    private static final CallbackTimeoutException CALLBACK_TIMEOUT_EXCEPTION = new CallbackTimeoutException();
     private Channel channel;
     private String channelId;
 
@@ -39,7 +38,7 @@ public class Sender {
                 channel.eventLoop().schedule(() -> {
                     if (!callbackInfo.isCall()) {
                         ClientContext.callbackMap.remove(call.CALL_ID);
-                        callback.response(CALLBACK_TIMEOUT_EXCEPTION, null);
+                        callback.response(new CallbackTimeoutException(), null);
                     }
                 }, callbackTimeout, TimeUnit.MILLISECONDS);
             }

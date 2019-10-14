@@ -3,10 +3,11 @@ import club.koumakan.rpc.core.RpcCore;
 import club.koumakan.rpc.core.RpcFactory;
 import club.koumakan.rpc.core.client.ConnectConfig;
 import club.koumakan.rpc.core.client.functional.Callback;
+import club.koumakan.rpc.core.exception.RpcCoreException;
 
 public class Client {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RpcCoreException {
         RpcFactory.createRpcClient(
                 RpcCore.client(),
                 new RpcConfig()

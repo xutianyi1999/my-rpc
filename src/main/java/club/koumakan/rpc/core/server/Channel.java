@@ -9,8 +9,6 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class Channel {
 
-    private static final ResponseException RESPONSE_EXCEPTION = new ResponseException("Has been sent");
-
     private ChannelHandlerContext ctx;
     private Call call;
     private boolean flag = false;
@@ -22,7 +20,7 @@ public class Channel {
 
     public Channel response(Object responseMessage, Future future) throws ResponseException {
         if (flag) {
-            throw RESPONSE_EXCEPTION;
+            throw new ResponseException("Has been sent");
         } else {
             flag = true;
         }
