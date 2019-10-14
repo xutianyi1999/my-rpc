@@ -23,11 +23,13 @@ public class RpcCore {
     private Class<? extends ServerSocketChannel> serverChannelClass;
     private Class<? extends SocketChannel> channelClass;
 
-    private static boolean isClient = false;
-    private static boolean isServer = false;
+    private boolean isClient;
+    private boolean isServer;
 
-    private RpcCore() throws RpcCoreException {
+    private RpcCore(boolean isClient, boolean isServer) throws RpcCoreException {
         checkIsCreated();
+        this.isClient = isClient;
+        this.isServer = isServer;
     }
 
     private static void checkIsCreated() throws RpcCoreException {
@@ -39,7 +41,7 @@ public class RpcCore {
     }
 
     public static RpcCore server() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore();
+        RpcCore rpcCore = new RpcCore(false, true);
 
         if (IS_LINUX) {
             rpcCore
@@ -52,13 +54,11 @@ public class RpcCore {
                     .setWorkerGroup(new NioEventLoopGroup())
                     .setServerChannelClass(NioServerSocketChannel.class);
         }
-
-        isServer = true;
         return rpcCore;
     }
 
     public static RpcCore client() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore();
+        RpcCore rpcCore = new RpcCore(true, false);
 
         if (IS_LINUX) {
             rpcCore
@@ -69,13 +69,11 @@ public class RpcCore {
                     .setWorkerGroup(new NioEventLoopGroup())
                     .setChannelClass(NioSocketChannel.class);
         }
-
-        isClient = true;
         return rpcCore;
     }
 
     public static RpcCore serverAndClient() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore();
+        RpcCore rpcCore = new RpcCore(true, true);
 
         if (IS_LINUX) {
             rpcCore
@@ -90,17 +88,11 @@ public class RpcCore {
                     .setServerChannelClass(NioServerSocketChannel.class)
                     .setChannelClass(NioSocketChannel.class);
         }
-
-        isClient = true;
-        isServer = true;
         return rpcCore;
     }
 
-    public RpcCore createInstance() throws RpcCoreException {
-        RpcCore rpcCore = new RpcCore();
-        isClient = true;
-        isServer = true;
-        return rpcCore;
+    public static RpcCore createInstance() throws RpcCoreException {
+        return new RpcCore(true, true);
     }
 
     public void destroy() {
@@ -114,13 +106,11 @@ public class RpcCore {
 
         if (isServer) {
             ServerContext.listenerMap.clear();
-            isServer = false;
         }
 
         if (isClient) {
             ClientContext.inactiveMap.clear();
             ClientContext.callbackMap.clear();
-            isClient = false;
         }
         isCreate = false;
     }
