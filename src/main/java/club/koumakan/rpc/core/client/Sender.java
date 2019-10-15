@@ -74,7 +74,8 @@ public class Sender {
         return channel.isWritable();
     }
 
-    public void addListenerInactive(Inactive inactive) {
+    public Sender addListenerInactive(Inactive inactive) {
         ClientContext.inactiveMap.put(channelId, inactive);
+        return this;
     }
 }
