@@ -23,6 +23,10 @@ public class Sender {
         this.channelId = channel.id().asShortText();
     }
 
+    public Sender send(String functionCode, Object requestMessage, Callback callback) {
+        return send(functionCode, requestMessage, callback, 10000);
+    }
+
     public Sender send(String functionCode, Object requestMessage, Callback callback, int callbackTimeout) {
         Call call = new Call(requestMessage, functionCode);
         CallbackInfo callbackInfo = new CallbackInfo(callback);
