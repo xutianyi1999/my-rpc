@@ -78,4 +78,8 @@ public class Sender {
         ClientContext.inactiveMap.put(channelId, inactive);
         return this;
     }
+
+    public Channel getChannel() {
+        return channel;
+    }
 }
