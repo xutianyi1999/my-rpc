@@ -11,13 +11,9 @@ import java.util.concurrent.TimeUnit;
 public class ConnectHandler {
 
     private Bootstrap bootstrap;
-
     private ConnectConfig connectConfig;
-
     private Future<Sender> future;
-
     private int retries;
-
     private final GenericFutureListener<ChannelFuture> GENERIC_FUTURE_LISTENER = channelFuture -> {
         Channel channel = channelFuture.channel();
 
@@ -27,12 +23,13 @@ public class ConnectHandler {
             if (retries != 0) {
                 retries--;
                 channelFuture.cause().printStackTrace();
-                channel.eventLoop().schedule(this::connect, connectConfig.getSleepMs(), TimeUnit.MILLISECONDS);
+                channel.eventLoop().schedule(connectTask, connectConfig.getSleepMs(), TimeUnit.MILLISECONDS);
             } else {
                 future.execute(channelFuture.cause(), null);
             }
         }
     };
+    private final Runnable connectTask = this::connect;
 
     public ConnectHandler(Bootstrap bootstrap, ConnectConfig connectConfig, Future<Sender> future) {
         this.bootstrap = bootstrap;
