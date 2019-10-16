@@ -14,6 +14,8 @@ public class ConnectHandler {
     private ConnectConfig connectConfig;
     private Future<Sender> future;
     private int retries;
+    private final Runnable connectTask = this::connect;
+
     private final GenericFutureListener<ChannelFuture> GENERIC_FUTURE_LISTENER = channelFuture -> {
         Channel channel = channelFuture.channel();
 
@@ -29,7 +31,6 @@ public class ConnectHandler {
             }
         }
     };
-    private final Runnable connectTask = this::connect;
 
     public ConnectHandler(Bootstrap bootstrap, ConnectConfig connectConfig, Future<Sender> future) {
         this.bootstrap = bootstrap;
