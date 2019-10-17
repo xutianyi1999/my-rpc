@@ -25,7 +25,7 @@ public class Client {
                     if (throwable != null) {
                         throwable.printStackTrace();
                     } else {
-                        sender.addListenerInactive(remoteAddress -> {
+                        sender.addInactiveListener(remoteAddress -> {
                             System.out.println(remoteAddress.getHostString());
                         });
                         new Thread(() -> {
